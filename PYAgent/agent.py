@@ -20,17 +20,27 @@ class Move:
     
     # @return The side of the board the player making the move is playing on.
     def getSide(self):
-        return side
+        return self.side
 
 
     #  @return The hole from which seeds are picked at the beginning of the
     #          move and distributed. It will be >= 1.
     def getHole(self):
-        return hole
+        return self.hole
 
 
 from random import choice
 class random_agent():
     
+
+    def getPossibleMoves(self, side, kalah):
+        choice_list = []
+        for i in range(1, 8):
+            move = Move(side, i)
+            if kalah.isLegalMove(kalah.board, move):
+                choice_list.append(i)
+        return choice_list
+
+
     def random_move(self, possible_moves):
         return choice(possible_moves)

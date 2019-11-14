@@ -54,10 +54,9 @@ if __name__ == "__main__":
                 if ~move_turn.end and move_turn.again:
                     # our turn, make a move
                     # get all legal moves
-                    # possible_moves = kalah.getPossibleMoves(side)
+                    # possible_moves = [1,2,3,4,5,6,7]
+                    possible_moves = random_agent().getPossibleMoves(side, kalah)
                     # choose randomly
-                    # move_hole = random_agent().random_move(possible_moves)
-                    possible_moves = [1,2,3,4,5,6,7]
                     move_hole = random_agent().random_move(possible_moves)
                     choice = Protocol().createMoveMsg(move_hole)
                     sendMsg(choice)

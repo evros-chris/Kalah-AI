@@ -278,7 +278,7 @@ class Kalah:
                 board.setSeeds(collectingSide, hole, 0)
             board.addSeedsToStore(collectingSide, seeds)
 
-        board.notifyObservers(move)
+        # board.notifyObservers(move)
 
         # who's turn is it?
         if sowHole == 0:  # the store (implies (sowSide == move.getSide()))
@@ -299,11 +299,3 @@ class Kalah:
 
         return holesEmpty(board, Side.NORTH) or holesEmpty(board, Side.SOUTH)
 
-
-    def getPossibleMoves(self, side):
-        choice_list = []
-        for i in range(1, 8):
-            move = Move(side, i)
-            if self.isLegalMove(move):
-                choice_list.append(i)
-        return choice_list
