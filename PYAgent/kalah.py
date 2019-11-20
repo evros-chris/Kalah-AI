@@ -1,147 +1,149 @@
 import enum
+
+from agent import Move
+from observable import Observable
+
+
 class Side(enum.Enum):
     NORTH = 0
     SOUTH = 1
 
-
     def opposite(self):
-        if self == NORTH:
-            return SOUTH
-        elif self == SOUTH:
-            return NORTH
-        else:
-            raise ValueError("side not defined")
+        cls = self.__class__
+        if self == cls.NORTH:
+            return cls.SOUTH
+        if self == cls.SOUTH:
+            return cls.NORTH
+        raise ValueError("side not defined")
 
 
-class Board:
+class Board(Observable):
     NORTH_ROW = 0
     SOUTH_ROW = 1
-
-    holes = 7
-
-    board = []
-
 
     def indexOfSide(self, side):
         if side == Side.NORTH:
             return self.NORTH_ROW
-        elif side == Side.SOUTH: 
+        elif side == Side.SOUTH:
             return self.SOUTH_ROW
         else:
             raise ValueError("side not defined")
 
+    def __init__(self, holes=7, seeds=7, original=None):
+        self.board = []
 
-    def __init__ (self, holes=7, seeds=7, from_original=False, original=None):
-        if ~from_original:
+        if original is None:
             if holes < 1:
-                raise ValueError("There has to be at least one hole, but " + holes + " were requested.")
+                raise ValueError('There has to be at least one hole, but '
+                                 f'{holes} were requested.')
             if seeds < 0:
-                raise ValueError("There has to be a non-negative number of seeds, but " + seeds + " were requested.")
+                raise ValueError('There has to be a non-negative number of '
+                                 f'seeds, but {seeds} were requested.')
 
             self.holes = holes
-            
+
             north_board = []
             south_board = []
-            for i in range(holes+1):
+            for i in range(holes + 1):
                 north_board.append(seeds)
                 south_board.append(seeds)
 
             self.board.append(north_board)
             self.board.append(south_board)
         else:
-            if original == None:
-                raise ValueError("no original board provided")
             self.holes = original.holes
             north_board = []
             south_board = []
-            for i in range(holes+1):
+            for i in range(holes + 1):
                 north_board[i] = original.board[self.NORTH_ROW][i]
                 south_board[i] = original.board[self.SOUTH_ROW][i]
+
             self.board.append(north_board)
             self.board.append(south_board)
-
+        super().__init__()
 
     def clone(self):
-        return Board(self, from_original=True, original=self)
-
+        return Board(self, original=self)
 
     def getNoOfHoles(self):
         return self.holes
 
-
     def getSeeds(self, side, hole):
         if hole < 1 or hole > self.holes:
-            raise ValueError("Hole number must be between 1 and " + str(len(board[self.NORTH_ROW]) - 1) + " but was " + hole + ".")
+            raise ValueError("Hole number must be between 1 and " +
+                             str(len(self.board[self.NORTH_ROW]) - 1) + " but was " + hole + ".")
 
         return self.board[self.indexOfSide(side)][hole]
 
-
     def setSeeds(self, side, hole, seeds):
         if hole < 1 or hole > self.holes:
-            raise ValueError("Hole number must be between 1 and " + str(len(board[self.NORTH_ROW])- 1) + " but was " + hole + ".")
+            raise ValueError("Hole number must be between 1 and " +
+                             str(len(self.board[self.NORTH_ROW]) - 1) + " but was " + hole + ".")
         if seeds < 0:
-            raise ValueError("There has to be a non-negative number of seeds, but " + seeds + " were requested.")
+            raise ValueError(
+                "There has to be a non-negative number of seeds, but " + seeds + " were requested.")
 
         self.board[self.indexOfSide(side)][hole] = seeds
-        # self.setChanged()
-
+        self.set_changed()
 
     def addSeeds(self, side, hole, seeds):
         if hole < 1 or hole > self.holes:
-            raise ValueError("Hole number must be between 1 and " + str(len(board[self.NORTH_ROW]) - 1) + " but was " + hole + ".")
+            raise ValueError("Hole number must be between 1 and " +
+                             str(len(self.board[self.NORTH_ROW]) - 1) + " but was " + hole + ".")
         if seeds < 0:
-            raise ValueError("There has to be a non-negative number of seeds, but " + seeds + " were requested.")
+            raise ValueError(
+                "There has to be a non-negative number of seeds, but " + seeds + " were requested.")
 
         self.board[self.indexOfSide(side)][hole] += seeds
-        # self.setChanged()
-
+        self.set_changed()
 
     def getSeedsOp(self, side, hole):
         if hole < 1 or hole > self.holes:
-            raise ValueError("Hole number must be between 1 and " + holes + " but was " + hole + ".")
+            raise ValueError("Hole number must be between 1 and " +
+                             self.holes + " but was " + hole + ".")
 
-        return self.board[1-self.indexOfSide(side)][holes+1-hole]
-    
+        return self.board[1-self.indexOfSide(side)][self.holes+1-hole]
 
     def setSeedsOp(self, side, hole, seeds):
         if hole < 1 or hole > self.holes:
-            raise ValueError("Hole number must be between 1 and " + str(len(board[self.NORTH_ROW]) - 1) + " but was " + hole + ".")
+            raise ValueError("Hole number must be between 1 and " +
+                             str(len(self.board[self.NORTH_ROW]) - 1) + " but was " + hole + ".")
         if seeds < 0:
-            raise ValueError("There has to be a non-negative number of seeds, but " + seeds + " were requested.")
+            raise ValueError(
+                "There has to be a non-negative number of seeds, but " + seeds + " were requested.")
 
         self.board[1-self.indexOfSide(side)][self.holes+1-hole] = seeds
-        # self.setChanged()
+        self.set_changed()
 
-    
     def addSeedsOp(self, side, hole, seeds):
-        if hole < 1 or hole > holes:
-            raise ValueError("Hole number must be between 1 and " + str(len(board[self.NORTH_ROW]) - 1) + " but was " + hole + ".")
+        if hole < 1 or hole > self.holes:
+            raise ValueError("Hole number must be between 1 and " +
+                             str(len(self.board[self.NORTH_ROW]) - 1) + " but was " + hole + ".")
         if seeds < 0:
-            raise ValueError("There has to be a non-negative number of seeds, but " + seeds + " were requested.")
+            raise ValueError(
+                "There has to be a non-negative number of seeds, but " + seeds + " were requested.")
 
-        self.board[1-self.indexOfSide(side)][holes+1-hole] += seeds
-        # self.setChanged()
-
+        self.board[1-self.indexOfSide(side)][self.holes+1-hole] += seeds
+        self.set_changed()
 
     def getSeedsInStore(self, side):
         return self.board[self.indexOfSide(side)][0]
 
-
     def setSeedsInStore(self, side, seeds):
         if seeds < 0:
-            raise ValueError("There has to be a non-negative number of seeds, but " + seeds + " were requested.")
+            raise ValueError(
+                "There has to be a non-negative number of seeds, but " + seeds + " were requested.")
 
         self.board[self.indexOfSide(side)][0] = seeds
-        # self.setChanged()
-
+        self.set_changed()
 
     def addSeedsToStore(self, side, seeds):
         if seeds < 0:
-            raise ValueError("There has to be a non-negative number of seeds, but " + seeds + " were requested.")
+            raise ValueError(
+                "There has to be a non-negative number of seeds, but " + seeds + " were requested.")
 
         self.board[self.indexOfSide(side)][0] += seeds
-        # self.setChanged()
-
+        self.set_changed()
 
     def toString(self):
         boardString = []
@@ -151,46 +153,31 @@ class Board:
             boardString.append("  " + self.board[self.NORTH_ROW][i])
         boardString.append("\n")
         for i in range(1, self.holes+1):
-            boardString.append(self.board[self.SOUTH_ROW][i] + "  ");
+            boardString.append(self.board[self.SOUTH_ROW][i] + "  ")
         boardString.append("--  " + self.board[self.SOUTH_ROW][0] + "\n")
 
         return str(boardString)
 
 
-from agent import Move
 class Kalah:
-    board = []
-
-
     def __init__(self, board):
         if board == None:
             raise TypeError
         self.board = board
 
-
     def getBoard(self):
         return self.board
 
-
-    def isLegalMove(self, move):
-        return isLegalMove(board, move)
-
-
-    def makeMove(self, move):
-        return makeMove(board, move)
-
-    
-    def gameOver(self):
-        return gameOver(board)
-
-    
-    def isLegalMove(self, board, move):
+    def isLegalMove(self, move, board=None):
+        if board is None:
+            board = self.board
         # check if the hole is existent and non-empty:
         return (move.getHole() <= board.getNoOfHoles()) \
-                and (board.getSeeds(move.getSide(), move.getHole()) != 0)
+            and (board.getSeeds(move.getSide(), move.getHole()) != 0)
 
-    
-    def makeMove(self, board, move):
+    def makeMove(self, move, board=None):
+        if board is None:
+            board = self.board
         # from the documentation:
         #   "1. The counters are lifted from this hole and sown in anti-clockwise direction, starting
         #       with the next hole. The player's own kalahah is included in the sowing, but the
@@ -208,18 +195,16 @@ class Kalah:
         #     	which case the other player captures all remaining counters. The player who
         #     	collects the most counters is the winner."
 
-
-
         # pick seeds:
         seedsToSow = board.getSeeds(move.getSide(), move.getHole())
         board.setSeeds(move.getSide(), move.getHole(), 0)
 
         holes = board.getNoOfHoles()
-        receivingPits = 2*holes + 1;  # sow into: all holes + 1 store
-        rounds = seedsToSow / receivingPits;  # sowing rounds
-        extra = seedsToSow % receivingPits;  # seeds for the last partial round
+        receivingPits = 2*holes + 1  # sow into: all holes + 1 store
+        rounds = seedsToSow / receivingPits  # sowing rounds
+        extra = seedsToSow % receivingPits  # seeds for the last partial round
         # the first "extra" number of holes get "rounds"+1 seeds, the
-        #    remaining ones get "rounds" seeds 
+        #    remaining ones get "rounds" seeds
 
         # sow the seeds of the full rounds (if any):
         if rounds != 0:
@@ -238,7 +223,7 @@ class Kalah:
                 sowSide = sowSide.opposite()
             if sowHole > holes:
                 if sowSide == move.getSide():
-                    sowHole = 0;  # sow to the store now
+                    sowHole = 0  # sow to the store now
                     board.addSeedsToStore(sowSide, 1)
                     continue
                 else:
@@ -254,31 +239,32 @@ class Kalah:
         # ... but into an empty hole (so now there's 1 seed) ...
         # ... and the opposite hole is non-empty
         if sowSide == move.getSide() \
-            and sowHole > 0  \
-            and board.getSeeds(sowSide, sowHole) == 1 \
-            and board.getSeedsOp(sowSide, sowHole) > 0:
-            board.addSeedsToStore(move.getSide(), 1 + board.getSeedsOp(move.getSide(), sowHole))
+                and sowHole > 0  \
+                and board.getSeeds(sowSide, sowHole) == 1 \
+                and board.getSeedsOp(sowSide, sowHole) > 0:
+            board.addSeedsToStore(move.getSide(), 1 +
+                                  board.getSeedsOp(move.getSide(), sowHole))
             board.setSeeds(move.getSide(), sowHole, 0)
             board.setSeedsOp(move.getSide(), sowHole, 0)
 
         # game over?
         finishedSide = None
-        if holesEmpty(board, move.getSide()):
+        if self.holesEmpty(board, move.getSide()):
             finishedSide = move.getSide()
-        elif holesEmpty(board, move.getSide().opposite()):
+        elif self.holesEmpty(board, move.getSide().opposite()):
             finishedSide = move.getSide().opposite()
             #  note: it is possible that both sides are finished, but then
-            #    there are no seeds to collect anyway 
+            #    there are no seeds to collect anyway
         if finishedSide != None:
             # collect the remaining seeds:
-            seeds = 0;
+            seeds = 0
             collectingSide = finishedSide.opposite()
             for hole in range(1, holes+1):
                 seeds += board.getSeeds(collectingSide, hole)
                 board.setSeeds(collectingSide, hole, 0)
             board.addSeedsToStore(collectingSide, seeds)
 
-        # board.notifyObservers(move)
+        board.notify_observers(move)
 
         # who's turn is it?
         if sowHole == 0:  # the store (implies (sowSide == move.getSide()))
@@ -286,16 +272,14 @@ class Kalah:
         else:
             return move.getSide().opposite()
 
-
-    def holesEmpty (self, board, side):
+    def holesEmpty(self, board, side):
         for hole in range(1, board.getNoOfHoles()+1):
             if board.getSeeds(side, hole) != 0:
                 return False
         return True
 
-    
-    def gameOver(self, board):
+    def gameOver(self, board=None):
+        if board is None:
+            board = self.board
         #  The game is over if one of the agents can't make another move.
-
-        return holesEmpty(board, Side.NORTH) or holesEmpty(board, Side.SOUTH)
-
+        return self.holesEmpty(board, Side.NORTH) or self.holesEmpty(board, Side.SOUTH)

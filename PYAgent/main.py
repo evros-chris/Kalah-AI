@@ -21,7 +21,9 @@ from protocol import MsgType
 from protocol import MoveTurn
 from protocol import Protocol
 from agent import Move
-from agent import random_agent
+from agent import RandomAgent
+
+
 if __name__ == "__main__":
     with open("log.txt", "w") as w:
         board = Board(7, 7)
@@ -43,7 +45,7 @@ if __name__ == "__main__":
                     w.write("our side: " + str(side) + '\n')
                     # choose randomly
                     possible_moves = [1,2,3,4,5,6,7]
-                    move_hole = random_agent().random_move(possible_moves)
+                    move_hole = RandomAgent().random_move(possible_moves)
                     choice = Protocol().createMoveMsg(move_hole)
                     sendMsg(choice)
                     w.write("msg sent: " + choice)
@@ -55,13 +57,9 @@ if __name__ == "__main__":
                     # our turn, make a move
                     # get all legal moves
                     # possible_moves = [1,2,3,4,5,6,7]
-                    possible_moves = random_agent().getPossibleMoves(side, kalah)
+                    possible_moves = RandomAgent().getPossibleMoves(side, kalah)
                     # choose randomly
-                    move_hole = random_agent().random_move(possible_moves)
+                    move_hole = RandomAgent().random_move(possible_moves)
                     choice = Protocol().createMoveMsg(move_hole)
                     sendMsg(choice)
                     w.write("msg sent: " + choice)
-    
-
-
-

@@ -1,4 +1,9 @@
 import enum
+
+from kalah import Board
+from kalah import Side
+
+
 class MsgType(enum.Enum):
     START = 0
     STATE = 1
@@ -16,31 +21,27 @@ class InvalidMessageException(Exception):
         super().__init__(exmsg)
 
 
-from kalah import Side
-from kalah import Board
 class Protocol:
     def createMoveMsg(self, hole):
         return "MOVE;" + str(hole)
-    
 
     def createSwapMsg(self):
         return "SWAP"
 
-
     def getMsgType(self, msg):
         if msg.startswith("START;"):
-            return MsgType.START;
+            return MsgType.START
         elif msg.startswith("CHANGE;"):
-            return MsgType.STATE;
+            return MsgType.STATE
         elif msg == "END\n":
             return MsgType.END
         else:
             raise InvalidMessageException("Could not determine message type.")
 
-
     def interpretStartMsg(self, msg):
-        if msg[len(msg) -1] != '\n':
-            raise InvalidMessageException("Message not terminated with 0x0A character.")
+        if msg[len(msg) - 1] != '\n':
+            raise InvalidMessageException(
+                "Message not terminated with 0x0A character.")
 
         position = msg[6: len(msg)-1]
         if position == "South":
@@ -49,14 +50,15 @@ class Protocol:
         elif position == "North":
             return False
         else:
-            raise InvalidMessageException("Illegal position parameter: " + position)
+            raise InvalidMessageException(
+                "Illegal position parameter: " + position)
 
-    
     def interpretStateMsg(self, msg, board):
         moveTurn = MoveTurn()
 
         if msg[len(msg)-1] != '\n':
-            raise InvalidMessageException("Message not terminated with 0x0A character.")
+            raise InvalidMessageException(
+                "Message not terminated with 0x0A character.")
 
         msgParts = msg.split(";")
         if len(msgParts) != 4:
@@ -66,12 +68,13 @@ class Protocol:
 
         # 1st argument: the move (or swap)
         if msgParts[1] == "SWAP":
-            moveTurn.move = -1;
+            moveTurn.move = -1
         else:
             try:
                 moveTurn.move = int(msgParts[1])
             except Exception as e:
-                raise InvalidMessageException("Illegal value for move parameter" + str(e))
+                raise InvalidMessageException(
+                    "Illegal value for move parameter" + str(e))
 
         # 2nd argument: the board
         boardParts = msgParts[2].split(",")
@@ -83,17 +86,21 @@ class Protocol:
                     + 2*(board.getNoOfHoles()+1) + " entries).')
         try:
             # holes on the north side:
-            for i in range (board.getNoOfHoles()):
+            for i in range(board.getNoOfHoles()):
                 board.setSeeds(Side.NORTH, i+1, int(boardParts[i]))
             # northern store:
-            board.setSeedsInStore(Side.NORTH, int(boardParts[board.getNoOfHoles()]))
-			# holes on the south side:
+            board.setSeedsInStore(Side.NORTH, int(
+                boardParts[board.getNoOfHoles()]))
+            # holes on the south side:
             for i in range(board.getNoOfHoles()):
-                board.setSeeds(Side.SOUTH, i+1, int(boardParts[i+board.getNoOfHoles()+1]))
+                board.setSeeds(Side.SOUTH, i+1,
+                               int(boardParts[i+board.getNoOfHoles()+1]))
             # southern store:
-            board.setSeedsInStore(Side.SOUTH, int(boardParts[2*board.getNoOfHoles()+1]))
+            board.setSeedsInStore(Side.SOUTH, int(
+                boardParts[2*board.getNoOfHoles()+1]))
         except Exception as e:
-            raise InvalidMessageException("Illegal value for seed count: " + str(e))
+            raise InvalidMessageException(
+                "Illegal value for seed count: " + str(e))
 
         # 3rd argument: who's turn?
         moveTurn.end = False
@@ -105,6 +112,7 @@ class Protocol:
             moveTurn.end = True
             moveTurn.again = False
         else:
-            raise InvalidMessageException("Illegal value for turn parameter: " + msgParts[3])
+            raise InvalidMessageException(
+                "Illegal value for turn parameter: " + msgParts[3])
 
         return moveTurn

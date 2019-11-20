@@ -1,3 +1,6 @@
+from random import choice
+
+
 class Move:
     # The side of the board the player making the move is playing on.
     side = None
@@ -29,15 +32,12 @@ class Move:
         return self.hole
 
 
-from random import choice
-class random_agent():
-    
-
+class RandomAgent():
     def getPossibleMoves(self, side, kalah):
         choice_list = []
         for i in range(1, 8):
             move = Move(side, i)
-            if kalah.isLegalMove(kalah.board, move):
+            if kalah.isLegalMove(move):
                 choice_list.append(i)
         return choice_list
 
