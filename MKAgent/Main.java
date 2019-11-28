@@ -67,7 +67,7 @@ public class Main
 		boolean isSecondMove = (board.getSeedsInStore(Side.SOUTH) == 1 && board.getSeedsInStore(Side.NORTH) == 0) ? true : false;
 		if (mySide == playSide)
 		{
-			bestValue = -Integer.MIN_VALUE;
+			bestValue = Integer.MIN_VALUE;
 			bestHole = 0;
 	
 			for (int i = 1; i <= 7; i++)
@@ -215,6 +215,8 @@ public class Main
 			else if (msgType == MsgType.STATE)
 			{
 				moveTurn = Protocol.interpretStateMsg(message, kalah.getBoard());
+				if (moveTurn.move == -1)
+					side = side.opposite();
 				if (moveTurn.again && !moveTurn.end)
 				{
 					moveHole = minimax(kalah.getBoard(), side, side, 8, Integer.MIN_VALUE, Integer.MAX_VALUE).getHole();
