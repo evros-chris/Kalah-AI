@@ -202,7 +202,10 @@ public class Main
 					side = Side.SOUTH;
 					moveHole = moveHole = minimax(kalah.getBoard(), side, side, 8, Integer.MIN_VALUE, Integer.MAX_VALUE).getHole();
 					if (moveHole == -1)
+					{
 						moveMessage = Protocol.createSwapMsg();
+						side = side.opposite();
+					}					
 					else					
 						moveMessage = Protocol.createMoveMsg(moveHole);
 					sendMsg(moveMessage);
@@ -221,7 +224,10 @@ public class Main
 				{
 					moveHole = minimax(kalah.getBoard(), side, side, 8, Integer.MIN_VALUE, Integer.MAX_VALUE).getHole();
 					if (moveHole == -1)
-						moveMessage = Protocol.createSwapMsg();					
+					{
+						moveMessage = Protocol.createSwapMsg();
+						side = side.opposite();
+					}					
 					else					
 						moveMessage = Protocol.createMoveMsg(moveHole);
 					sendMsg(moveMessage);
