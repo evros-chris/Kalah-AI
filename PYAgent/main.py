@@ -1,6 +1,18 @@
+from sys import stdin
+
+from agent import Move
+from agent import RandomAgent
+from kalah import Board
+from kalah import Kalah
+from kalah import Side
+from protocol import MoveTurn
+from protocol import MsgType
+from protocol import Protocol
+
+
 # Sends a message to the game engine.
 # @param msg The message.
-def sendMsg (msg):
+def sendMsg(msg):
     print(msg, flush=True)
 
 
@@ -8,20 +20,9 @@ def sendMsg (msg):
 #  * a '\n' character.
 #  * @return The message.
 #  * @throws IOException if there has been an I/O error.
-from sys import stdin    
 def recvMsg():
     message = stdin.readline()
     return message
-
-
-from kalah import Board
-from kalah import Kalah
-from kalah import Side
-from protocol import MsgType
-from protocol import MoveTurn
-from protocol import Protocol
-from agent import Move
-from agent import RandomAgent
 
 
 if __name__ == "__main__":
@@ -44,7 +45,7 @@ if __name__ == "__main__":
                     side = Side.SOUTH
                     w.write("our side: " + str(side) + '\n')
                     # choose randomly
-                    possible_moves = [1,2,3,4,5,6,7]
+                    possible_moves = [1, 2, 3, 4, 5, 6, 7]
                     move_hole = RandomAgent().random_move(possible_moves)
                     choice = Protocol().createMoveMsg(move_hole)
                     sendMsg(choice)
@@ -53,11 +54,13 @@ if __name__ == "__main__":
                     side = Side.NORTH
             else:
                 move_turn = Protocol().interpretStateMsg(message, kalah.board)
-                if ~move_turn.end and move_turn.again:
+                if not move_turn.end and move_turn.again:
                     # our turn, make a move
                     # get all legal moves
                     # possible_moves = [1,2,3,4,5,6,7]
-                    possible_moves = RandomAgent().getPossibleMoves(side, kalah)
+                    possible_moves = RandomAgent().getPossibleMoves(
+                        side, kalah
+                    )
                     # choose randomly
                     move_hole = RandomAgent().random_move(possible_moves)
                     choice = Protocol().createMoveMsg(move_hole)

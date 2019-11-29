@@ -1,10 +1,10 @@
 # training script for dqn agent
-from dqn_engine import build_game_env
-import dqn
 import torch
-import torch.optim as optim
 import torch.nn.functional as F
+import torch.optim as optim
 
+import dqn
+from dqn_engine import KalahEnvManager
 
 # hyper parameters
 num_episodes = 1000
@@ -16,24 +16,23 @@ eps_end = 0.01
 eps_decay = 0.001
 target_update = 10
 memory_size = 100000
-lr = 0.001 # learning rate
-
+lr = 0.001  # learning rate
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 strategy = dqn.EpsilonGreedyStrategy(eps_start, eps_end, eps_decay)
-agent = dqn.dqnAgent(strategy=strategy, num_actions=8, device=device)
+agent = dqn.Agent(strategy=strategy, num_actions=8, device=device)
 memory = dqn.ReplayMemory(memory_size)
 
 # build neural networks
-policy_net = dqn.build_DQN(rows=2, cols=7).to(device)
-target_net = dqn.build_DQN(rows=2, cols=7).to(device)
+policy_net = dqn.DQN(rows=2, cols=7).to(device)
+target_net = dqn.DQN(rows=2, cols=7).to(device)
 
 target_net.load_state_dict(policy_net.state_dict())
-target_net.eval() # this network is not for training
+target_net.eval()  # this network is not for training
 
 optimizer = optim.Adam(params=policy_net.parameters(), lr=lr)
 
-env = build_game_env(device)
+env = KalahEnvManager(device)
 wins = 0
 num_played = 0
 for episode in range(num_episodes):
@@ -52,16 +51,20 @@ for episode in range(num_episodes):
         # Memory replay
         if memory.exp_count >= batch_size:
             experiences = memory.sample(batch_size)
-            states, actions, next_states, rewards = dqn.extract_tensors(experiences)
-            current_q_values = dqn.QValues.get_current(policy_net, states, actions)
+            states, actions, next_states, rewards = dqn.extract_tensors(
+                experiences
+            )
+            current_q_values = dqn.QValues.get_current(
+                policy_net, states, actions
+            )
             next_q_values = dqn.QValues.get_next(target_net, next_states)
             target_q_values = (next_q_values * gamma) + rewards
-            
+
             # gradient descent: update weights
             loss = F.mse_loss(current_q_values, target_q_values.unsqueeze(1))
-            optimizer.zero_grad() # clear previous gradients
-            loss.backward() # back prop, calculate gradients
-            optimizer.step() # update weights
+            optimizer.zero_grad()  # clear previous gradients
+            loss.backward()  # back prop, calculate gradients
+            optimizer.step()  # update weights
 
         # stop episode if game is over
         if env.is_gameover():
