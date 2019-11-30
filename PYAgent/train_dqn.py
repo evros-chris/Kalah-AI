@@ -8,14 +8,16 @@ from dqn_engine import KalahEnvManager
 from agent import Move
 
 # hyper parameters
-num_episodes = 1000
+num_episodes = 3000
 max_steps = 100
 batch_size = 256
 gamma = 0.999
 eps_start = 1
 eps_end = 0.01
 eps_decay = 0.001
-target_update = 10
+# how often update the target net: 1000(OpenAI) or 10000(DeepMind)
+# too small will make training unstable
+target_update = 1000
 memory_size = 100000
 lr = 0.001  # learning rate
 
@@ -71,16 +73,16 @@ for episode in range(num_episodes):
             loss.backward()  # back prop, calculate gradients
             optimizer.step()  # update weights
 
-        # synchronize the target_net
-        if episode % target_update == 0:
-            target_net.load_state_dict(policy_net.state_dict())
-
         # stop episode if game is over
         if env.is_gameover():
             if env.winner():
                 wins += 1
             break
 
+    # synchronize the target_net
+    if episode % target_update == 0:
+        target_net.load_state_dict(policy_net.state_dict())
+    
     # print current winning rate
     dqn_win, final_score = env.winner()
     if dqn_win:
