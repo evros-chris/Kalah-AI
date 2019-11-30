@@ -5,6 +5,7 @@ import torch.optim as optim
 
 import dqn
 from dqn_engine import KalahEnvManager
+from agent import Move
 
 # hyper parameters
 num_episodes = 1000
@@ -19,8 +20,9 @@ memory_size = 100000
 lr = 0.001  # learning rate
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# print(device)
 strategy = dqn.EpsilonGreedyStrategy(eps_start, eps_end, eps_decay)
-agent = dqn.Agent(strategy=strategy, num_actions=8, device=device)
+agent = dqn.Agent(strategy=strategy, num_actions=7, device=device)
 memory = dqn.ReplayMemory(memory_size)
 
 # build neural networks
@@ -39,13 +41,15 @@ for episode in range(num_episodes):
     num_played += 1
     env.reset()
     side, state, reward = env.get_initial_state()
-    for step in max_steps:
+    # print(state)
+    for step in range(max_steps):
         # DQN select a move according to policy_net
         move = agent.select_action(state, policy_net)
+        move = Move(env.dqn_side, move)
         # DQN makes a move
         next_state, reward = env.make_move(move)
         # save in memory
-        memory.exp_save(dqn.Experience(state, move, next_state, reward))
+        memory.exp_save(dqn.Experience(torch.unsqueeze(state, 0), torch.LongTensor([move.getHole()-1]), torch.unsqueeze(next_state, 0), torch.Tensor([reward])))
         # update current state
         state = next_state
         # Memory replay
@@ -62,20 +66,26 @@ for episode in range(num_episodes):
 
             # gradient descent: update weights
             loss = F.mse_loss(current_q_values, target_q_values.unsqueeze(1))
+            # print("loss: " + str(loss))
             optimizer.zero_grad()  # clear previous gradients
             loss.backward()  # back prop, calculate gradients
             optimizer.step()  # update weights
+
+        # synchronize the target_net
+        if episode % target_update == 0:
+            target_net.load_state_dict(policy_net.state_dict())
 
         # stop episode if game is over
         if env.is_gameover():
             if env.winner():
                 wins += 1
-            winning_rate = wins / num_played
-            # print current winning rate
-            print("episode: " + str(episode))
-            print("winning rate: " + str(winning_rate))
             break
 
-        # synchronize the target_net
-        if episode % target_update == 0:
-            target_net.load_state_dict(policy_net.state_dict())
+    # print current winning rate
+    dqn_win, final_score = env.winner()
+    if dqn_win:
+        wins += 1
+    winning_rate = wins / num_played
+    print("episode: " + str(episode))
+    print("DQN scores: " + str(final_score))
+    print("winning rate: " + str(winning_rate))

@@ -15,16 +15,15 @@ class DQN(nn.Module):
         super().__init__()
 
         # input is the board matrix
-        # apply softmax for 8 possible actions at the end
         self.fc1 = nn.Linear(in_features=rows * cols, out_features=24)
         self.fc2 = nn.Linear(in_features=24, out_features=32)
-        self.out = nn.Linear(in_features=32, out_features=8)
+        self.out = nn.Linear(in_features=32, out_features=7)
 
     def forward(self, start_point):
         t = start_point.flatten(start_dim=1)
         t = F.relu(self.fc1(t))
         t = F.relu(self.fc2(t))
-        t = F.softmax(self.out(t))
+        t = self.out(t)
         return t
 
 
@@ -82,12 +81,15 @@ class Agent():
 
         if rate > random.random():
             # explore
-            action = random.randrange(self.num_actions)
-            return torch.tensor([action]).to(self.device)
+            action = random.randrange(1, self.num_actions)
+            # return torch.tensor([action]).to(self.device)
+            return action
         else:
             # exploit
             with torch.no_grad():
-                return policy_net(state).argmax(dim=1).to(self.device)
+                # return policy_net(state).argmax(dim=1).to(self.device
+                # print(policy_net(state))
+                return int(policy_net(torch.unsqueeze(state, 0)).argmax())+1
 
 
 def extract_tensors(experiences):
@@ -122,4 +124,5 @@ class QValues():
         # values = torch.zeros(batch_size).to(QValues.device)
         # values[non_final_state_locations] = target_net(non_final_states).max(dim=1)[0].detach()
         # return values
-        pass
+        values = target_net(next_states).max(dim=1)[0].detach()
+        return values

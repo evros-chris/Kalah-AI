@@ -16,7 +16,7 @@ class Move:
     #  @throws IllegalArgumentException if the hole number is not >= 1.
     def __init__(self, side, hole):
         if hole < 1:
-            raise ValueError("Hole numbers must be >= 1, but " + hole + " was given.")
+            raise ValueError("Hole numbers must be >= 1, but " + str(hole) + " was given.")
         self.side = side
         self.hole = hole
 

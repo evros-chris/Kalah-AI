@@ -35,10 +35,10 @@ class Board(Observable):
         if original is None:
             if holes < 1:
                 raise ValueError('There has to be at least one hole, but '
-                                 f'{holes} were requested.')
+                                f'{holes} were requested.')
             if seeds < 0:
                 raise ValueError('There has to be a non-negative number of '
-                                 f'seeds, but {seeds} were requested.')
+                                f'seeds, but {seeds} were requested.')
 
             self.holes = holes
 
@@ -71,17 +71,17 @@ class Board(Observable):
     def getSeeds(self, side, hole):
         if hole < 1 or hole > self.holes:
             raise ValueError("Hole number must be between 1 and " +
-                             str(len(self.board[self.NORTH_ROW]) - 1) + " but was " + hole + ".")
+                            str(len(self.board[self.NORTH_ROW]) - 1) + " but was " + str(hole) + ".")
 
         return self.board[self.indexOfSide(side)][hole]
 
     def setSeeds(self, side, hole, seeds):
         if hole < 1 or hole > self.holes:
             raise ValueError("Hole number must be between 1 and " +
-                             str(len(self.board[self.NORTH_ROW]) - 1) + " but was " + hole + ".")
+                            str(len(self.board[self.NORTH_ROW]) - 1) + " but was " + str(hole) + ".")
         if seeds < 0:
             raise ValueError(
-                "There has to be a non-negative number of seeds, but " + seeds + " were requested.")
+                "There has to be a non-negative number of seeds, but " + str(seeds) + " were requested.")
 
         self.board[self.indexOfSide(side)][hole] = seeds
         self.set_changed()
@@ -89,7 +89,7 @@ class Board(Observable):
     def addSeeds(self, side, hole, seeds):
         if hole < 1 or hole > self.holes:
             raise ValueError("Hole number must be between 1 and " +
-                             str(len(self.board[self.NORTH_ROW]) - 1) + " but was " + hole + ".")
+                            str(len(self.board[self.NORTH_ROW]) - 1) + " but was " + hole + ".")
         if seeds < 0:
             raise ValueError(
                 "There has to be a non-negative number of seeds, but " + seeds + " were requested.")
@@ -100,14 +100,14 @@ class Board(Observable):
     def getSeedsOp(self, side, hole):
         if hole < 1 or hole > self.holes:
             raise ValueError("Hole number must be between 1 and " +
-                             self.holes + " but was " + hole + ".")
+                            self.holes + " but was " + hole + ".")
 
         return self.board[1-self.indexOfSide(side)][self.holes+1-hole]
 
     def setSeedsOp(self, side, hole, seeds):
         if hole < 1 or hole > self.holes:
             raise ValueError("Hole number must be between 1 and " +
-                             str(len(self.board[self.NORTH_ROW]) - 1) + " but was " + hole + ".")
+                            str(len(self.board[self.NORTH_ROW]) - 1) + " but was " + hole + ".")
         if seeds < 0:
             raise ValueError(
                 "There has to be a non-negative number of seeds, but " + seeds + " were requested.")
@@ -118,7 +118,7 @@ class Board(Observable):
     def addSeedsOp(self, side, hole, seeds):
         if hole < 1 or hole > self.holes:
             raise ValueError("Hole number must be between 1 and " +
-                             str(len(self.board[self.NORTH_ROW]) - 1) + " but was " + hole + ".")
+                            str(len(self.board[self.NORTH_ROW]) - 1) + " but was " + hole + ".")
         if seeds < 0:
             raise ValueError(
                 "There has to be a non-negative number of seeds, but " + seeds + " were requested.")
@@ -243,7 +243,7 @@ class Kalah:
                 and board.getSeeds(sowSide, sowHole) == 1 \
                 and board.getSeedsOp(sowSide, sowHole) > 0:
             board.addSeedsToStore(move.getSide(), 1 +
-                                  board.getSeedsOp(move.getSide(), sowHole))
+                                board.getSeedsOp(move.getSide(), sowHole))
             board.setSeeds(move.getSide(), sowHole, 0)
             board.setSeedsOp(move.getSide(), sowHole, 0)
 
