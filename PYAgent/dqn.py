@@ -89,7 +89,7 @@ class Agent():
             with torch.no_grad():
                 # return policy_net(state).argmax(dim=1).to(self.device
                 # print(policy_net(state))
-                return int(policy_net(torch.unsqueeze(state, 0)).argmax())+1
+                return int(policy_net(torch.unsqueeze(state.to(self.device), 0)).argmax())+1
 
 
 def extract_tensors(experiences):
@@ -112,7 +112,7 @@ class QValues():
     @staticmethod
     def get_current(policy_net, states, actions):
         # get current q values
-        return policy_net(states).gather(dim=1, index=actions.unsqueeze(-1))
+        return policy_net(states.to(QValues.device)).gather(dim=1, index=actions.to(QValues.device).unsqueeze(-1))
 
     @staticmethod
     def get_next(target_net, next_states):
@@ -124,5 +124,5 @@ class QValues():
         # values = torch.zeros(batch_size).to(QValues.device)
         # values[non_final_state_locations] = target_net(non_final_states).max(dim=1)[0].detach()
         # return values
-        values = target_net(next_states).max(dim=1)[0].detach()
+        values = target_net(next_states.to(QValues.device)).max(dim=1)[0].detach()
         return values

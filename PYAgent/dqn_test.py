@@ -8,8 +8,8 @@ from agent import Move
 num_episodes = 1000
 wins = 0
 num_played = 0
-eps_start = 0.01
-eps_end = 0.01
+eps_start = 0
+eps_end = 0
 eps_decay = 0.001
 
 env = KalahEnvManager("cpu")

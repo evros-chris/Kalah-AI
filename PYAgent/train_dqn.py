@@ -10,7 +10,7 @@ from agent import Move
 from IPython.display import clear_output
 
 # hyper parameters
-num_episodes = 5000
+num_episodes = 10000
 max_steps = 200
 batch_size = 256
 gamma = 0.9
@@ -19,7 +19,7 @@ eps_end = 0.05
 eps_decay = 0.001
 # how often update the target net: 1000(OpenAI) or 10000(DeepMind)
 # too small may make training unstable
-target_update = 1000
+target_update = 500
 memory_size = 3000
 lr = 1e-5  # learning rate
 
@@ -41,8 +41,9 @@ optimizer = optim.Adam(params=policy_net.parameters(), lr=lr)
 env = KalahEnvManager(device)
 wins = 0
 num_played = 0
+avg_score = 0
 loss = None
-for episode in range(num_episodes):
+for episode in range(1, num_episodes+1):
     num_played += 1
     env.reset()
     side, state, reward = env.get_initial_state()
@@ -69,7 +70,7 @@ for episode in range(num_episodes):
                 policy_net, states, actions
             )
             next_q_values = dqn.QValues.get_next(target_net, next_states)
-            target_q_values = (next_q_values * gamma) + rewards
+            target_q_values = (next_q_values * gamma) + rewards.to(device)
 
             # gradient descent: update weights
             loss = F.mse_loss(current_q_values, target_q_values.unsqueeze(1))
@@ -83,18 +84,24 @@ for episode in range(num_episodes):
             if dqn_win:
                 wins += 1
             break
+    
+    dqn_win, final_score = env.winner()
+    avg_score += final_score
 
     # synchronize the target_net
     if episode % target_update == 0:
         target_net.load_state_dict(policy_net.state_dict())
     
-    # print current winning rate
-    dqn_win, final_score = env.winner()
-    winning_rate = wins / num_played
-    clear_output(wait=True)
-    print("episode: " + str(episode))
-    print("DQN scores: " + str(final_score))
-    print("winning rate: " + str(winning_rate))
-    print("loss: " + str(loss))
+    if episode % 100 == 0:
+        # print current winning rate
+        avg_score /= num_played
+        winning_rate = wins / num_played
+        clear_output(wait=True)
+        print("episode: " + str(episode-100) + '-' + str(episode))
+        print("DQN avg scores: " + str(avg_score))
+        print("winning rate(past 100 games): " + str(winning_rate))
+        print("loss: " + str(loss))
+        wins = 0
+        num_played = 0
 
 torch.save(policy_net.state_dict(), "dqn_model")
