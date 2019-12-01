@@ -31,7 +31,7 @@ class KalahEnvManager():
             # state = initial state, reward = 0
             state = copy.deepcopy(self.kalah.getBoard().board)
             state[0] = state[0][1:]
-            state[1] = state[1][:-1]
+            state[1] = state[1][1:]
             state = torch.Tensor(state)
             reward = 0
         else:
@@ -55,7 +55,7 @@ class KalahEnvManager():
             # state = current board, reward = current score
             state = copy.deepcopy(self.kalah.getBoard().board)
             state[0] = state[0][1:]
-            state[1] = state[1][:-1]
+            state[1] = state[1][1:]
             state = torch.Tensor(state)
             reward = self.kalah.board.getSeedsInStore(self.dqn_side) - self.kalah.board.getSeedsInStore(self.op_side) 
         # return side, state, reward
@@ -65,16 +65,11 @@ class KalahEnvManager():
     # the dqn agent will make a move in the env
     # return next_state and reward back to the dqn agent
     def make_move(self, move):
+        is_game_over = False
         turn = self.kalah.makeMove(move)
-        if turn == self.dqn_side:
-            # still DQN make a move
-            # return current board and current score
-            state = copy.deepcopy(self.kalah.getBoard().board)
-            state[0] = state[0][1:]
-            state[1] = state[1][:-1]
-            state = torch.Tensor(state)
-            reward = self.kalah.board.getSeedsInStore(self.dqn_side) - self.kalah.board.getSeedsInStore(self.op_side)
-        else:
+        if self.is_gameover():
+            is_game_over = True
+        elif turn == self.op_side:
             # opAgent make moves util it is dqn's turn
             possible_moves = RandomAgent().getPossibleMoves(
                         self.op_side, self.kalah
@@ -83,23 +78,31 @@ class KalahEnvManager():
             move = RandomAgent().random_move(possible_moves)
             move = Move(self.op_side, move)
             turn = self.kalah.makeMove(move)
-            while turn!=self.dqn_side:
-                # opAgent make moves util it is dqn's turn
-                possible_moves = RandomAgent().getPossibleMoves(
-                        self.op_side, self.kalah
-                    )
-                # choose randomly
-                move = RandomAgent().random_move(possible_moves)
-                move = Move(self.op_side, move)
-                turn = self.kalah.makeMove(move)
-            # state = current board, reward = current score
-            state = copy.deepcopy(self.kalah.getBoard().board)
-            state[0] = state[0][1:]
-            state[1] = state[1][:-1]
-            state = torch.Tensor(state)
-            reward = self.kalah.board.getSeedsInStore(self.dqn_side) - self.kalah.board.getSeedsInStore(self.op_side)
-            # return current board and current score
-            return state, reward
+            if self.is_gameover():
+                is_game_over = True
+            else:
+                while turn!=self.dqn_side:
+                    # opAgent make moves util it is dqn's turn
+                    possible_moves = RandomAgent().getPossibleMoves(
+                            self.op_side, self.kalah
+                        )
+                    # choose randomly
+                    move = RandomAgent().random_move(possible_moves)
+                    move = Move(self.op_side, move)
+                    turn = self.kalah.makeMove(move)
+                    if self.is_gameover():
+                        is_game_over = True
+                        break
+        # if still DQN make a move
+        # return current board and current score
+        # state = current board, reward = current score
+        state = copy.deepcopy(self.kalah.getBoard().board)
+        state[0] = state[0][1:]
+        state[1] = state[1][1:]
+        state = torch.Tensor(state)
+        reward = self.kalah.board.getSeedsInStore(self.dqn_side) - self.kalah.board.getSeedsInStore(self.op_side)
+        # return current board and current score
+        return is_game_over, state, reward
             
 
     # return whether the game is over

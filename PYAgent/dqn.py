@@ -15,9 +15,9 @@ class DQN(nn.Module):
         super().__init__()
 
         # input is the board matrix
-        self.fc1 = nn.Linear(in_features=rows * cols, out_features=24)
-        self.fc2 = nn.Linear(in_features=24, out_features=32)
-        self.out = nn.Linear(in_features=32, out_features=7)
+        self.fc1 = nn.Linear(in_features=rows * cols, out_features=128)
+        self.fc2 = nn.Linear(in_features=128, out_features=256)
+        self.out = nn.Linear(in_features=256, out_features=7)
 
     def forward(self, start_point):
         t = start_point.flatten(start_dim=1)

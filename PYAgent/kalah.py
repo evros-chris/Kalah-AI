@@ -201,7 +201,7 @@ class Kalah:
 
         holes = board.getNoOfHoles()
         receivingPits = 2*holes + 1  # sow into: all holes + 1 store
-        rounds = seedsToSow / receivingPits  # sowing rounds
+        rounds = seedsToSow // receivingPits  # sowing rounds
         extra = seedsToSow % receivingPits  # seeds for the last partial round
         # the first "extra" number of holes get "rounds"+1 seeds, the
         #    remaining ones get "rounds" seeds
