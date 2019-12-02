@@ -8,6 +8,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.transforms as T
 
+from agent import RandomAgent
+
 
 # structure of dqn policy_net and target_net
 class DQN(nn.Module):
@@ -16,13 +18,15 @@ class DQN(nn.Module):
 
         # input is the board matrix
         self.fc1 = nn.Linear(in_features=rows * cols, out_features=128)
+        self.linear1_dropout = nn.Dropout(p=0.2)
         self.fc2 = nn.Linear(in_features=128, out_features=256)
+        self.linear2_dropout = nn.Dropout(p=0.2)
         self.out = nn.Linear(in_features=256, out_features=7)
 
     def forward(self, start_point):
         t = start_point.flatten(start_dim=1)
-        t = F.relu(self.fc1(t))
-        t = F.relu(self.fc2(t))
+        t = F.relu(self.linear1_dropout(self.fc1(t)))
+        t = F.relu(self.linear2_dropout(self.fc2(t)))
         t = self.out(t)
         return t
 
@@ -75,21 +79,48 @@ class Agent():
         self.num_actions = num_actions
         self.device = device
 
-    def select_action(self, state, policy_net):
+    def select_action(self, state, policy_net, side, kalah):
         rate = self.strategy.get_exploration_rate(self.current_step)
         self.current_step += 1
 
+        possible_moves = RandomAgent().getPossibleMoves(
+                    side, kalah
+                )
         if rate > random.random():
             # explore
-            action = random.randrange(1, self.num_actions)
-            # return torch.tensor([action]).to(self.device)
+            # choose randomly
+            action = RandomAgent().random_move(possible_moves)
+            # action = random.randrange(1, self.num_actions)
             return action
         else:
             # exploit
             with torch.no_grad():
-                # return policy_net(state).argmax(dim=1).to(self.device
-                # print(policy_net(state))
-                return int(policy_net(torch.unsqueeze(state.to(self.device), 0)).argmax())+1
+                actions = policy_net(torch.unsqueeze(state.to(self.device), 0))
+                action = actions.argmax()
+                return int(action)+1
+
+    def select_action_valid(self, state, policy_net, side, kalah):
+        rate = self.strategy.get_exploration_rate(self.current_step)
+        self.current_step += 1
+
+        possible_moves = RandomAgent().getPossibleMoves(
+                    side, kalah
+                )
+        if rate > random.random():
+            # explore
+            # choose randomly
+            action = RandomAgent().random_move(possible_moves)
+            # action = random.randrange(1, self.num_actions)
+            return action
+        else:
+            # exploit
+            with torch.no_grad():
+                actions = policy_net(torch.unsqueeze(state.to(self.device), 0))
+                actions = actions.argsort(descending=True).tolist()[0]
+                for action in actions:
+                    if action+1 in possible_moves:
+                        break
+                return int(action)+1
 
 
 def extract_tensors(experiences):

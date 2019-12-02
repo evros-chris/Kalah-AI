@@ -20,14 +20,19 @@ policy_net = dqn.DQN(2, 7)
 policy_net.load_state_dict(torch.load("dqn_model"))
 policy_net.eval()
 
+
 for episode in range(num_episodes):
     env.reset()
     num_played += 1
+    illegal_moves = 0
     side, state, reward = env.get_initial_state()
     while 1:
         # DQN select a move according to policy_net
-        move = agent.select_action(state, policy_net)
+        move = agent.select_action_valid(state, policy_net, side, env.kalah)
         move = Move(env.dqn_side, move)
+        if env.kalah.isLegalMove(move) == False:
+            illegal_moves += 1
+            break
         # DQN makes a move
         is_game_over, next_state, reward = env.make_move(move)
         # update current state
@@ -46,5 +51,6 @@ for episode in range(num_episodes):
     print("episode: " + str(episode))
     print("DQN scores: " + str(final_score))
     print("winning rate: " + str(winning_rate))
+    print("illegal moves: " + str(illegal_moves))
 
 print("Overall winning rate: " + str(winning_rate))
