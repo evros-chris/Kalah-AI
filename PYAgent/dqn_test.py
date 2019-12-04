@@ -46,11 +46,12 @@ for episode in range(num_episodes):
             break
     
     # print current winning rate
-    dqn_win, final_score = env.winner()
-    winning_rate = wins / num_played
-    print("episode: " + str(episode))
-    print("DQN scores: " + str(final_score))
-    print("winning rate: " + str(winning_rate))
-    print("illegal moves: " + str(illegal_moves))
+    if episode % 100 == 0:
+        dqn_win, final_score = env.winner()
+        winning_rate = wins / num_played
+        print("episode: " + str(episode))
+        print("DQN scores: " + str(final_score))
+        print("winning rate: " + str(winning_rate))
+        print("illegal moves: " + str(illegal_moves))
 
 print("Overall winning rate: " + str(winning_rate))

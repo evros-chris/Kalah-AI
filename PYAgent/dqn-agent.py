@@ -9,6 +9,10 @@ from protocol import MoveTurn
 from protocol import MsgType
 from protocol import Protocol
 
+import torch
+import dqn
+import copy
+
 
 # Sends a message to the game engine.
 # @param msg The message.
@@ -26,6 +30,13 @@ def recvMsg():
 
 
 if __name__ == "__main__":
+    strategy = dqn.EpsilonGreedyStrategy(0, 0, 0)
+    agent = dqn.Agent(strategy=strategy, num_actions=7, device='cpu')
+
+    policy_net = dqn.DQN(2, 7)
+    policy_net.load_state_dict(torch.load("PYAgent/dqn_model", map_location=torch.device('cpu')))
+    policy_net.eval()
+
     with open("log.txt", "w") as w:
         board = Board(7, 7)
         kalah = Kalah(board)
@@ -45,11 +56,17 @@ if __name__ == "__main__":
                     side = Side.SOUTH
                     w.write("our side: " + str(side) + '\n')
                     # choose randomly
-                    possible_moves = [1, 2, 3, 4, 5, 6, 7]
-                    move_hole = RandomAgent().random_move(possible_moves)
+                    # possible_moves = [1, 2, 3, 4, 5, 6, 7]
+                    # move_hole = RandomAgent().random_move(possible_moves)
+                    # dqn makes a move
+                    state = copy.deepcopy(kalah.getBoard().board)
+                    state[0] = state[0][1:]
+                    state[1] = state[1][1:]
+                    state = torch.Tensor(state)
+                    move_hole = agent.select_action_valid(state, policy_net, side, kalah)
                     choice = Protocol().createMoveMsg(move_hole)
                     sendMsg(choice)
-                    w.write("msg sent: " + choice)
+                    w.write("msg sent: " + choice + "\n")
                 else:
                     side = Side.NORTH
             else:
@@ -62,7 +79,15 @@ if __name__ == "__main__":
                         side, kalah
                     )
                     # choose randomly
-                    move_hole = RandomAgent().random_move(possible_moves)
+                    # move_hole = RandomAgent().random_move(possible_moves)
+                    # choice = Protocol().createMoveMsg(move_hole)
+                    # dqn makes a move
+                    # w.write("possible_moves: " + str(possible_moves) + "\n")
+                    state = copy.deepcopy(kalah.getBoard().board)
+                    state[0] = state[0][1:]
+                    state[1] = state[1][1:]
+                    state = torch.Tensor(state)
+                    move_hole = agent.select_action_valid(state, policy_net, side, kalah)
                     choice = Protocol().createMoveMsg(move_hole)
                     sendMsg(choice)
-                    w.write("msg sent: " + choice)
+                    w.write("msg sent: " + choice + "\n")

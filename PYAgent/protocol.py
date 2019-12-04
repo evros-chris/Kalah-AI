@@ -94,7 +94,7 @@ class Protocol:
             # holes on the south side:
             for i in range(board.getNoOfHoles()):
                 board.setSeeds(Side.SOUTH, i+1,
-                               int(boardParts[i+board.getNoOfHoles()+1]))
+                                int(boardParts[i+board.getNoOfHoles()+1]))
             # southern store:
             board.setSeedsInStore(Side.SOUTH, int(
                 boardParts[2*board.getNoOfHoles()+1]))

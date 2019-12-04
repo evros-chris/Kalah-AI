@@ -21,12 +21,15 @@ class DQN(nn.Module):
         self.linear1_dropout = nn.Dropout(p=0.2)
         self.fc2 = nn.Linear(in_features=128, out_features=256)
         self.linear2_dropout = nn.Dropout(p=0.2)
-        self.out = nn.Linear(in_features=256, out_features=7)
+        self.fc3 = nn.Linear(in_features=256, out_features=512)
+        self.linear3_dropout = nn.Dropout(p=0.2)
+        self.out = nn.Linear(in_features=512, out_features=7)
 
     def forward(self, start_point):
         t = start_point.flatten(start_dim=1)
         t = F.relu(self.linear1_dropout(self.fc1(t)))
         t = F.relu(self.linear2_dropout(self.fc2(t)))
+        t = F.relu(self.linear3_dropout(self.fc3(t)))
         t = self.out(t)
         return t
 

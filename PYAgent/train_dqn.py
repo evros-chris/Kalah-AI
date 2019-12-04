@@ -10,18 +10,19 @@ from agent import Move
 from IPython.display import clear_output
 
 # hyper parameters
-num_episodes = 3000
+num_episodes = 4000
 max_steps = 200
 batch_size = 256
 gamma = 0.9
 eps_start = 0.9
-eps_end = 0.05
+eps_end = 0.01
 eps_decay = 0.0001
 # how often update the target net: 1000(OpenAI) or 10000(DeepMind)
 # too small may make training unstable
-target_update = 10000
-memory_size = 5000
+target_update = 800
+memory_size = 10000
 lr = 1e-5  # learning rate
+score_rewards = False # use scores difference as rewards
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # print(device)
@@ -44,8 +45,13 @@ num_played = 0
 avg_score = 0
 illegal_moves = 0
 loss = None
-steps = 0
+max_win_rate = 0
+
 for episode in range(1, num_episodes+1):
+    steps = 0
+    mem_state = []
+    mem_action = []
+    mem_next = []
     num_played += 1
     env.reset()
     is_game_over = False
@@ -68,7 +74,12 @@ for episode in range(1, num_episodes+1):
             is_game_over, next_state, reward = env.make_move(move)
     
         # save in memory
-        memory.exp_save(dqn.Experience(torch.unsqueeze(state, 0), torch.LongTensor([move.getHole()-1]), torch.unsqueeze(next_state, 0), torch.Tensor([reward])))
+        if score_rewards:
+            memory.exp_save(dqn.Experience(torch.unsqueeze(state, 0), torch.LongTensor([move.getHole()-1]), torch.unsqueeze(next_state, 0), torch.Tensor([reward])))
+        else:
+            mem_state.append(torch.unsqueeze(state, 0))
+            mem_action.append(torch.LongTensor([move.getHole()-1]))
+            mem_next.append(torch.unsqueeze(next_state, 0))
 
         # update current state
         state = next_state
@@ -91,15 +102,23 @@ for episode in range(1, num_episodes+1):
             loss.backward()  # back prop, calculate gradients
             optimizer.step()  # update weights
         
-        # synchronize the target_net
-        # if steps % target_update == 0:
-        #     target_net.load_state_dict(policy_net.state_dict())
-        
         # stop episode if game is over
         if is_game_over:
             dqn_win, final_score = env.winner()
             if dqn_win == True and illegal == False:
                 wins += 1
+                reward = 1000/steps
+            else:
+                reward = -1000/steps
+            if score_rewards == False:
+                for i in range(len(mem_state)):
+                    memory.exp_save(
+                        dqn.Experience(
+                        mem_state[i], 
+                        mem_action[i], 
+                        mem_next[i], 
+                        torch.Tensor([reward])
+                    ))
             break
     
     dqn_win, final_score = env.winner()
@@ -107,6 +126,10 @@ for episode in range(1, num_episodes+1):
         final_score = -1000
     avg_score += final_score
     
+    # synchronize the target_net
+    if episode % target_update == 0:
+        target_net.load_state_dict(policy_net.state_dict())
+
     if episode % 100 == 0:
         # print current winning rate
         avg_score /= num_played
@@ -115,10 +138,13 @@ for episode in range(1, num_episodes+1):
         print("episode: " + str(episode-99) + '-' + str(episode))
         print("DQN avg scores: " + str(avg_score))
         print("winning rate(past 100 games): " + str(winning_rate))
-        print("illegal moves: " + str(illegal_moves))
+        # print("illegal moves: " + str(illegal_moves))
         print("loss: " + str(loss))
         wins = 0
         num_played = 0
         illegal_moves = 0
+        if winning_rate > max_win_rate:
+            max_win_rate = winning_rate
+            torch.save(policy_net.state_dict(), "dqn_model")
 
-torch.save(policy_net.state_dict(), "dqn_model")
+print("max winning rate during training: " + str(max_win_rate))
