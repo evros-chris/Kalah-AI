@@ -90,12 +90,12 @@ def getMsgType(msg):
 
 
 def interpretStartMsg(msg):
-    if msg[len(msg) - 1] != '\n':
+    if msg[-1] != '\n':
         raise InvalidMessageException(
             "Message not terminated with 0x0A character."
         )
 
-    position = msg[6:len(msg) - 1]
+    position = msg[6:-1]
     if position == "South":
         # South starts the game
         return True
@@ -110,7 +110,7 @@ def interpretStartMsg(msg):
 def interpretStateMsg(msg, board):
     moveTurn = MoveTurn()
 
-    if msg[len(msg) - 1] != '\n':
+    if msg[-1] != '\n':
         raise InvalidMessageException(
             "Message not terminated with 0x0A character."
         )
