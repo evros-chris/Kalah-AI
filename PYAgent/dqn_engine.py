@@ -1,118 +1,46 @@
-# game engine for dqn training
-from kalah import Board
-from kalah import Kalah
-from kalah import Side
-from agent import RandomAgent
-from agent import Move
 import torch
-import copy
+
+from kalah import Side
+from kalah_env import KalahEnv
 
 
 class KalahEnvManager():
-    kalah = None
-    dqn_side = None
-    op_side = None
-
-    def __init__(self, device, side=Side.SOUTH):
+    """
+    Game engine for dqn training.
+    """
+    def __init__(self, op_command, device, side=Side.SOUTH):
+        self.env = KalahEnv(op_command, side)
+        self.env.reset()
         self.device = device
-        self.dqn_side = side
-        self.op_side = side.opposite()
+        self._state = self.env.get_state()
+        self.done = False
 
-    # reset the game to initial state
     def reset(self):
-        self.kalah = Kalah(Board(7, 7))
+        """
+        Reset the game to the starting state.
+        """
+        self.env.reset()
+        self._state = self.env.get_state()
 
-    # give the initial state of the game to dqn agent
-    # including: which side, game state, current reward
-    def get_initial_state(self):
-        # determine side
-        # if dqn is South
-        if self.dqn_side == Side.SOUTH:
-            # state = initial state, reward = 0
-            state = copy.deepcopy(self.kalah.getBoard().board)
-            state[0] = state[0][1:]
-            state[1] = state[1][1:]
-            state = torch.Tensor(state)
-            reward = 0
-        else:
-            # if dqn is North
-            possible_moves = RandomAgent().getPossibleMoves(
-                        Side.SOUTH, self.kalah
-                    )
-            # choose randomly
-            move = RandomAgent().random_move(possible_moves)
-            move = Move(self.op_side, move)
-            turn = self.kalah.makeMove(move)
-            while turn!=self.dqn_side:
-                # opAgent make moves util it is dqn's turn
-                possible_moves = RandomAgent().getPossibleMoves(
-                        Side.SOUTH, self.kalah
-                    )
-                # choose randomly
-                move = RandomAgent().random_move(possible_moves)
-                move = Move(self.op_side, move)
-                turn = self.kalah.makeMove(move)
-            # state = current board, reward = current score
-            state = copy.deepcopy(self.kalah.getBoard().board)
-            state[0] = state[0][1:]
-            state[1] = state[1][1:]
-            state = torch.Tensor(state)
-            reward = self.kalah.board.getSeedsInStore(self.dqn_side) - self.kalah.board.getSeedsInStore(self.op_side) 
-        # return side, state, reward
-        return self.dqn_side, state, reward
-        
+    def get_state(self):
+        """
+        Get the current state of the environment as a PyTorch Tensor.
+        """
+        return torch.Tensor(self.env.get_state())
 
-    # the dqn agent will make a move in the env
-    # return next_state and reward back to the dqn agent
-    def make_move(self, move):
-        is_game_over = False
-        turn = self.kalah.makeMove(move)
-        if self.is_gameover():
-            is_game_over = True
-        elif turn == self.op_side:
-            # opAgent make moves util it is dqn's turn
-            possible_moves = RandomAgent().getPossibleMoves(
-                        self.op_side, self.kalah
-                    )
-            # choose randomly
-            move = RandomAgent().random_move(possible_moves)
-            move = Move(self.op_side, move)
-            turn = self.kalah.makeMove(move)
-            if self.is_gameover():
-                is_game_over = True
-            else:
-                while turn!=self.dqn_side:
-                    # opAgent make moves util it is dqn's turn
-                    possible_moves = RandomAgent().getPossibleMoves(
-                            self.op_side, self.kalah
-                        )
-                    # choose randomly
-                    move = RandomAgent().random_move(possible_moves)
-                    move = Move(self.op_side, move)
-                    turn = self.kalah.makeMove(move)
-                    if self.is_gameover():
-                        is_game_over = True
-                        break
-        # if still DQN make a move
-        # return current board and current score
-        # state = current board, reward = current score
-        state = copy.deepcopy(self.kalah.getBoard().board)
-        state[0] = state[0][1:]
-        state[1] = state[1][1:]
-        state = torch.Tensor(state)
-        reward = self.kalah.board.getSeedsInStore(self.dqn_side) - self.kalah.board.getSeedsInStore(self.op_side)
-        # return current board and current score
-        return is_game_over, state, reward
-            
+    def take_action(self, move):
+        """
+        Make a move in the env and return next state and reward back to the
+        agent.
+        """
+        self._state, reward, self.done, _ = self.env.step(move)
+        return reward
 
-    # return whether the game is over
-    def is_gameover(self):
-        return self.kalah.gameOver()
-
-    # check if the dqn agent wins the game
     def winner(self):
-        final_score = self.kalah.board.getSeedsInStore(self.dqn_side) - self.kalah.board.getSeedsInStore(self.op_side)
+        """
+        Check if we won the game.
+        """
+        final_score = self.env.get_score()
         if final_score > 0:
             return True, final_score
-        else:
-            return False, final_score
+        return False, final_score
