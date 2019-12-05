@@ -83,6 +83,10 @@ def getMsgType(msg):
         return MsgType.START
     elif msg.startswith("CHANGE;"):
         return MsgType.STATE
+    elif msg.startswith("MOVE;"):
+        return MsgType.MOVE
+    elif msg == "SWAP\n":
+        return MsgType.SWAP
     elif msg == "END\n":
         return MsgType.END
     else:
