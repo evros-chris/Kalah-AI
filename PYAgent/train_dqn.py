@@ -56,8 +56,9 @@ for episode in range(1, num_episodes+1):
     em.reset()
     is_game_over = False
     illegal = False
-    side = em.agent_side()
-    side, state, reward = em.get_initial_state()
+    side = em.side
+    state = em.get_state()
+    reward = 0
     # print(state)
     for step in range(max_steps):
         steps += 1
