@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 import dqn
-from dqn_engine import KalahEnvManager
+from env_manager import KalahEnvManager
 from agent import Move
 
 from IPython.display import clear_output
@@ -39,7 +39,7 @@ target_net.eval()  # this network is not for training
 
 optimizer = optim.Adam(params=policy_net.parameters(), lr=lr)
 
-env = KalahEnvManager(device)
+em = KalahEnvManager('java -jar ../MKRefAgent.jar', device)
 wins = 0
 num_played = 0
 avg_score = 0
@@ -53,17 +53,18 @@ for episode in range(1, num_episodes+1):
     mem_action = []
     mem_next = []
     num_played += 1
-    env.reset()
+    em.reset()
     is_game_over = False
     illegal = False
-    side, state, reward = env.get_initial_state()
+    side = em.agent_side()
+    side, state, reward = em.get_initial_state()
     # print(state)
     for step in range(max_steps):
         steps += 1
         # DQN select a move according to policy_net
-        move = agent.select_action_valid(state, policy_net, side, env.kalah)
-        move = Move(env.dqn_side, move)
-        if env.kalah.isLegalMove(move) == False:
+        move = agent.select_action_valid(state, policy_net, side, em.kalah)
+        move = Move(em.dqn_side, move)
+        if em.kalah.isLegalMove(move) == False:
             illegal_moves += 1
             is_game_over = True
             illegal = True
@@ -71,7 +72,7 @@ for episode in range(1, num_episodes+1):
             reward = -1000
         else:    
             # DQN makes a move
-            is_game_over, next_state, reward = env.make_move(move)
+            is_game_over, next_state, reward = em.make_move(move)
     
         # save in memory
         if score_rewards:
@@ -104,7 +105,7 @@ for episode in range(1, num_episodes+1):
         
         # stop episode if game is over
         if is_game_over:
-            dqn_win, final_score = env.winner()
+            dqn_win, final_score = em.winner()
             if dqn_win == True and illegal == False:
                 wins += 1
                 reward = 1000/steps
@@ -121,7 +122,7 @@ for episode in range(1, num_episodes+1):
                     ))
             break
     
-    dqn_win, final_score = env.winner()
+    dqn_win, final_score = em.winner()
     if illegal:
         final_score = -1000
     avg_score += final_score

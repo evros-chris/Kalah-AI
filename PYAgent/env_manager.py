@@ -13,6 +13,7 @@ class KalahEnvManager():
         self.env.reset()
         self.device = device
         self._state = self.env.get_state()
+        self.side = self.env.agent_side
         self.done = False
 
     def reset(self):
@@ -21,6 +22,8 @@ class KalahEnvManager():
         """
         self.env.reset()
         self._state = self.env.get_state()
+        self.side = self.env.agent_side
+        self.done = False
 
     def get_state(self):
         """

@@ -2,7 +2,7 @@
 import torch
 
 import dqn
-from dqn_engine import KalahEnvManager
+from env_manager import KalahEnvManager
 from agent import Move
 
 num_episodes = 1000
