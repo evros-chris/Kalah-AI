@@ -22,7 +22,7 @@ eps_decay = 0.0001
 target_update = 800
 memory_size = 10000
 lr = 1e-5  # learning rate
-score_rewards = False # use scores difference as rewards
+score_rewards = False  # use scores difference as rewards
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # print(device)
@@ -47,14 +47,14 @@ illegal_moves = 0
 loss = None
 max_win_rate = 0
 
-for episode in range(1, num_episodes+1):
+for episode in range(1, num_episodes + 1):
     steps = 0
     mem_state = []
     mem_action = []
     mem_next = []
     num_played += 1
     em.reset()
-    is_game_over = False
+    done = False
     illegal = False
     side = em.side
     state = em.get_state()
@@ -64,23 +64,31 @@ for episode in range(1, num_episodes+1):
         steps += 1
         # DQN select a move according to policy_net
         move = agent.select_action_valid(state, policy_net, side, em.kalah)
-        move = Move(em.dqn_side, move)
-        if em.kalah.isLegalMove(move) == False:
+        move = Move(em.side, move)
+        if not em.kalah.isLegalMove(move):
             illegal_moves += 1
-            is_game_over = True
+            done = True
             illegal = True
             next_state = state
             reward = -1000
-        else:    
+        else:
             # DQN makes a move
-            is_game_over, next_state, reward = em.make_move(move)
-    
+            reward = em.take_action(move)
+            done = em.done
+            next_state = em.get_state()
+
         # save in memory
         if score_rewards:
-            memory.exp_save(dqn.Experience(torch.unsqueeze(state, 0), torch.LongTensor([move.getHole()-1]), torch.unsqueeze(next_state, 0), torch.Tensor([reward])))
+            memory.exp_save(
+                dqn.Experience(
+                    torch.unsqueeze(state, 0),
+                    torch.LongTensor([move.getHole() - 1]),
+                    torch.unsqueeze(next_state, 0), torch.Tensor([reward])
+                )
+            )
         else:
             mem_state.append(torch.unsqueeze(state, 0))
-            mem_action.append(torch.LongTensor([move.getHole()-1]))
+            mem_action.append(torch.LongTensor([move.getHole() - 1]))
             mem_next.append(torch.unsqueeze(next_state, 0))
 
         # update current state
@@ -103,31 +111,30 @@ for episode in range(1, num_episodes+1):
             optimizer.zero_grad()  # clear previous gradients
             loss.backward()  # back prop, calculate gradients
             optimizer.step()  # update weights
-        
+
         # stop episode if game is over
-        if is_game_over:
+        if done:
             dqn_win, final_score = em.winner()
             if dqn_win == True and illegal == False:
                 wins += 1
-                reward = 1000/steps
+                reward = 1000 / steps
             else:
-                reward = -1000/steps
+                reward = -1000 / steps
             if score_rewards == False:
                 for i in range(len(mem_state)):
                     memory.exp_save(
                         dqn.Experience(
-                        mem_state[i], 
-                        mem_action[i], 
-                        mem_next[i], 
-                        torch.Tensor([reward])
-                    ))
+                            mem_state[i], mem_action[i], mem_next[i],
+                            torch.Tensor([reward])
+                        )
+                    )
             break
-    
+
     dqn_win, final_score = em.winner()
     if illegal:
         final_score = -1000
     avg_score += final_score
-    
+
     # synchronize the target_net
     if episode % target_update == 0:
         target_net.load_state_dict(policy_net.state_dict())
@@ -137,7 +144,7 @@ for episode in range(1, num_episodes+1):
         avg_score /= num_played
         winning_rate = wins / num_played
         clear_output(wait=True)
-        print("episode: " + str(episode-99) + '-' + str(episode))
+        print("episode: " + str(episode - 99) + '-' + str(episode))
         print("DQN avg scores: " + str(avg_score))
         print("winning rate(past 100 games): " + str(winning_rate))
         # print("illegal moves: " + str(illegal_moves))
