@@ -26,7 +26,7 @@ class KalahEnvManager():
         """
         Get the current state of the environment as a PyTorch Tensor.
         """
-        return torch.Tensor(self.env.get_state())
+        return torch.Tensor(self._state)
 
     def take_action(self, move):
         """
