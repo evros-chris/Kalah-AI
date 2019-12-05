@@ -9,6 +9,7 @@ import torch.nn.functional as F
 import torchvision.transforms as T
 
 from agent import RandomAgent
+import agent
 
 
 # structure of dqn policy_net and target_net
@@ -86,7 +87,7 @@ class Agent():
         rate = self.strategy.get_exploration_rate(self.current_step)
         self.current_step += 1
 
-        possible_moves = RandomAgent().getPossibleMoves(side, kalah)
+        possible_moves = agent.getPossibleMoves(side, kalah)
         if rate > random.random():
             # explore
             # choose randomly
@@ -104,7 +105,7 @@ class Agent():
         rate = self.strategy.get_exploration_rate(self.current_step)
         self.current_step += 1
 
-        possible_moves = RandomAgent().getPossibleMoves(side, kalah)
+        possible_moves = agent.getPossibleMoves(side, kalah)
         if rate > random.random():
             # explore
             # choose randomly

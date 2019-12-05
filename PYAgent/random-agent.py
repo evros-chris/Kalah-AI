@@ -5,6 +5,7 @@ from kalah import Board
 from kalah import Kalah
 from kalah import Side
 from protocol import MsgType
+import agent
 import protocol
 
 # Sends a message to the game engine.
@@ -55,7 +56,7 @@ if __name__ == "__main__":
                     # our turn, make a move
                     # get all legal moves
                     # possible_moves = [1,2,3,4,5,6,7]
-                    possible_moves = RandomAgent().getPossibleMoves(
+                    possible_moves = agent.getPossibleMoves(
                         side, kalah
                     )
                     # choose randomly
