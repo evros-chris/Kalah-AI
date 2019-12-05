@@ -21,7 +21,7 @@ class KalahEnv():
         self.agent_side = agent_side
         self._op_side = agent_side.opposite()
         self._active_side = KalahEnv.starting_side
-        self._kalah = None
+        self.kalah = None
         self._op_process = None
         self.move_count = 1
 
@@ -35,7 +35,7 @@ class KalahEnv():
         self._active_side = KalahEnv.starting_side
 
         # Reset game.
-        self._kalah = Kalah(Board(KalahEnv.holes, KalahEnv.seeds))
+        self.kalah = Kalah(Board(KalahEnv.holes, KalahEnv.seeds))
 
         # Create new opponent process.
         if self._op_process is not None:
@@ -77,19 +77,19 @@ class KalahEnv():
         return self.get_state(), reward, done, {}
 
     def get_state(self):
-        if self._kalah is None:
+        if self.kalah is None:
             return None
 
-        state = copy.deepcopy(self._kalah.board.board)
+        state = copy.deepcopy(self.kalah.board.board)
         state[0] = state[0][1:]
         state[1] = state[1][1:]
 
         return state
 
     def get_score(self):
-        return self._kalah.board.getSeedsInStore(
+        return self.kalah.board.getSeedsInStore(
             self.agent_side
-        ) - self._kalah.board.getSeedsInStore(self._op_side)
+        ) - self.kalah.board.getSeedsInStore(self._op_side)
 
     def _handle_message(self, message):
         done = False
@@ -109,7 +109,7 @@ class KalahEnv():
             print('Move: Swap')
 
             self._op_process.stdin.write(
-                protocol.createSwapInfoMsg(self._kalah.board)
+                protocol.createSwapInfoMsg(self.kalah.board)
             )
 
             self.move_count += 1
@@ -133,22 +133,22 @@ class KalahEnv():
         return done
 
     def _handle_move(self, move):
-        if not self._kalah.isLegalMove(move):
+        if not self.kalah.isLegalMove(move):
             raise protocol.IllegalMoveException()
-        turn = self._kalah.makeMove(move)
+        turn = self.kalah.makeMove(move)
 
         # Update active side. On the first turn you can only make one move.
         if self.move_count == 1 or turn != self._active_side:
             self._active_side = self._active_side.opposite()
 
         # Check if game should end.
-        done = self._kalah.gameOver()
+        done = self.kalah.gameOver()
 
         # Notify opponent of finished move.
         self._op_process.stdin.write(
             protocol.createStateMsg(
                 move,
-                self._kalah.board,
+                self.kalah.board,
                 done,
                 self._active_side == self._op_side,
             )
