@@ -46,7 +46,7 @@ class KalahEnv():
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             bufsize=0,
-            text=True,
+            universal_newlines=True,
         )
 
         # Reset move count.
