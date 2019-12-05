@@ -13,7 +13,6 @@ class KalahEnv():
     holes = 7
     seeds = 7
     starting_side = Side.SOUTH
-    print_board_to_stderr = True
     allow_swapping = True
 
     def __init__(self, command, agent_side=Side.SOUTH):
@@ -27,13 +26,16 @@ class KalahEnv():
         self.move_count = 1
 
     def reset(self):
+        """
+        Reset environment to starting state.
+        """
         # Reset sides.
         self.agent_side = self._original_agent_side
         self._op_side = self.agent_side.opposite()
         self._active_side = KalahEnv.starting_side
 
         # Reset game.
-        self._kalah = Kalah(Board(7, 7))
+        self._kalah = Kalah(Board(KalahEnv.holes, KalahEnv.seeds))
 
         # Create new opponent process.
         if self._op_process is not None:
@@ -65,18 +67,14 @@ class KalahEnv():
         reward = 0
 
         done = self._handle_move(action)
-        if done:
-            return self.get_state(), reward, True, {}
 
         # If it is the opponent's turn, let them play until it is no longer
         # their turn.
-        while self._active_side == self._op_side:
+        while self._active_side == self._op_side and not done:
             message = self._op_process.stdout.readline()
             done = self._handle_message(message)
-            if done:
-                return self.get_state(), reward, True, {}
 
-        return self.get_state(), reward, False, {}
+        return self.get_state(), reward, done, {}
 
     def get_state(self):
         if self._kalah is None:
@@ -94,8 +92,12 @@ class KalahEnv():
         ) - self._kalah.board.getSeedsInStore(self._op_side)
 
     def _handle_message(self, message):
+        done = False
         msg_type = protocol.getMsgType(message)
-        if msg_type == protocol.MsgType.SWAP and self.move_count == 2:
+        if (
+            msg_type == protocol.MsgType.SWAP and KalahEnv.allow_swapping
+            and self.move_count == 2
+        ):
             # Swap player sides.
             self.agent_side, self._op_side = self._op_side = (
                 self._op_side, self.agent_side
@@ -158,6 +160,10 @@ class KalahEnv():
 
 
 class KalahEngine():
+    """
+    Java Kalah engine translated to Python. This is just here to refer to and
+    we shouldn't actually use it.
+    """
     starting_side = Side.SOUTH
     holes = 7
     seeds = 7
