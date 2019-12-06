@@ -81,8 +81,12 @@ class KalahEnv():
             return None
 
         state = copy.deepcopy(self.kalah.board.board)
-        state[0] = state[0][1:]
-        state[1] = state[1][1:]
+        if self.agent_side == Side.SOUTH:
+            state[0] = state[0][1:]
+            state[1] = state[1][1:]
+        else:
+            state[0] = state[1][1:]
+            state[1] = state[0][1:]
 
         return state
 

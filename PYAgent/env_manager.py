@@ -43,6 +43,7 @@ class KalahEnvManager():
         agent.
         """
         self._state, reward, self.done, _ = self._env.step(move)
+        self.side = self._env.agent_side
         return reward
 
     def winner(self):
