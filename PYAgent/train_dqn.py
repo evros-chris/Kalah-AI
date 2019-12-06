@@ -76,6 +76,7 @@ for episode in range(1, num_episodes + 1):
             reward = em.take_action(move)
             done = em.done
             next_state = em.get_state()
+            side = em.side
 
         # save in memory
         if score_rewards:
