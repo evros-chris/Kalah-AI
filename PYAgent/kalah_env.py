@@ -81,8 +81,12 @@ class KalahEnv():
             return None
 
         state = copy.deepcopy(self.kalah.board.board)
-        state[0] = state[0][1:]
-        state[1] = state[1][1:]
+        if self.agent_side == Side.SOUTH:
+            state[0] = state[0][1:]
+            state[1] = state[1][1:]
+        else:
+            state[0] = state[1][1:]
+            state[1] = state[0][1:]
 
         return state
 
@@ -99,7 +103,7 @@ class KalahEnv():
             and self.move_count == 2
         ):
             # Swap player sides.
-            self.agent_side, self._op_side = self._op_side = (
+            self.agent_side, self._op_side = (
                 self._op_side, self.agent_side
             )
 
@@ -108,9 +112,10 @@ class KalahEnv():
 
             print('Move: Swap')
 
-            self._op_process.stdin.write(
-                protocol.createSwapInfoMsg(self.kalah.board)
-            )
+            if self._active_side == self._op_side:
+                self._op_process.stdin.write(
+                    protocol.createSwapInfoMsg(self.kalah.board)
+                )
 
             self.move_count += 1
         else:
