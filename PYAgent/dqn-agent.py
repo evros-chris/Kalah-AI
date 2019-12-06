@@ -61,8 +61,13 @@ if __name__ == "__main__":
                     # move_hole = RandomAgent().random_move(possible_moves)
                     # dqn makes a move
                     state = copy.deepcopy(kalah.getBoard().board)
-                    state[0] = state[0][1:]
-                    state[1] = state[1][1:]
+                    if side == Side.SOUTH:
+                        state[0] = state[0][1:]
+                        state[1] = state[1][1:]
+                    else:
+                        state_0 = copy.deepcopy(state[0][1:])
+                        state[0] = state[1][1:]
+                        state[1] = state_0
                     state = torch.Tensor(state)
                     move_hole = agent.select_action_valid(state, policy_net, side, kalah)
                     choice = protocol.createMoveMsg(move_hole)
@@ -74,8 +79,13 @@ if __name__ == "__main__":
                 side = side.opposite()
                 w.write("our side: " + str(side) + '\n')
                 state = copy.deepcopy(kalah.getBoard().board)
-                state[0] = state[0][1:]
-                state[1] = state[1][1:]
+                if side == Side.SOUTH:
+                    state[0] = state[0][1:]
+                    state[1] = state[1][1:]
+                else:
+                    state_0 = copy.deepcopy(state[0][1:])
+                    state[0] = state[1][1:]
+                    state[1] = state_0
                 state = torch.Tensor(state)
                 move_hole = agent.select_action_valid(state, policy_net, side, kalah)
                 choice = protocol.createMoveMsg(move_hole)
@@ -95,8 +105,13 @@ if __name__ == "__main__":
                     # choice = protocol.createMoveMsg(move_hole)
                     # dqn makes a move
                     state = copy.deepcopy(kalah.getBoard().board)
-                    state[0] = state[0][1:]
-                    state[1] = state[1][1:]
+                    if side == Side.SOUTH:
+                        state[0] = state[0][1:]
+                        state[1] = state[1][1:]
+                    else:
+                        state_0 = copy.deepcopy(state[0][1:])
+                        state[0] = state[1][1:]
+                        state[1] = state_0
                     state = torch.Tensor(state)
                     move_hole = agent.select_action_valid(state, policy_net, side, kalah)
                     choice = protocol.createMoveMsg(move_hole)

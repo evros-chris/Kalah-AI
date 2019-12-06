@@ -85,8 +85,9 @@ class KalahEnv():
             state[0] = state[0][1:]
             state[1] = state[1][1:]
         else:
+            state_0 = copy.deepcopy(state[0][1:])
             state[0] = state[1][1:]
-            state[1] = state[0][1:]
+            state[1] = state_0
 
         return state
 
@@ -108,7 +109,7 @@ class KalahEnv():
             )
 
             # Swap active side.
-            self._active_side = self._active_side.opposite()
+            # self._active_side = self._active_side.opposite()
 
             print('Move: Swap')
 
@@ -139,7 +140,7 @@ class KalahEnv():
 
     def _handle_move(self, move):
         if not self.kalah.isLegalMove(move):
-            raise protocol.IllegalMoveException(move.getHole())
+            raise protocol.IllegalMoveException(str(move.getSide()) + str(move.getHole()))
         turn = self.kalah.makeMove(move)
 
         # Update active side. On the first turn you can only make one move.

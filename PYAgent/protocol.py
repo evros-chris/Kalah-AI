@@ -75,7 +75,6 @@ def createSwapInfoMsg(board):
         message += f"{board.getSeeds(Side.SOUTH, i)},"
     message += f"{board.getSeedsInStore(Side.SOUTH)};YOU\n"
 
-    print(message)
     return message
 
 
