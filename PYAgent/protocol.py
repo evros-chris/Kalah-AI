@@ -75,12 +75,15 @@ def createSwapInfoMsg(board):
         message += f"{board.getSeeds(Side.SOUTH, i)},"
     message += f"{board.getSeedsInStore(Side.SOUTH)};YOU\n"
 
+    print(message)
     return message
 
 
 def getMsgType(msg):
     if msg.startswith("START;"):
         return MsgType.START
+    elif msg.startswith("CHANGE;SWAP"):
+        return MsgType.SWAP
     elif msg.startswith("CHANGE;"):
         return MsgType.STATE
     elif msg.startswith("MOVE;"):

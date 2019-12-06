@@ -99,7 +99,7 @@ class KalahEnv():
             and self.move_count == 2
         ):
             # Swap player sides.
-            self.agent_side, self._op_side = self._op_side = (
+            self.agent_side, self._op_side = (
                 self._op_side, self.agent_side
             )
 
@@ -108,9 +108,10 @@ class KalahEnv():
 
             print('Move: Swap')
 
-            self._op_process.stdin.write(
-                protocol.createSwapInfoMsg(self.kalah.board)
-            )
+            if self._active_side == self._op_side:
+                self._op_process.stdin.write(
+                    protocol.createSwapInfoMsg(self.kalah.board)
+                )
 
             self.move_count += 1
         else:
@@ -134,7 +135,7 @@ class KalahEnv():
 
     def _handle_move(self, move):
         if not self.kalah.isLegalMove(move):
-            raise protocol.IllegalMoveException()
+            raise protocol.IllegalMoveException(move.getHole())
         turn = self.kalah.makeMove(move)
 
         # Update active side. On the first turn you can only make one move.

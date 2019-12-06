@@ -7,6 +7,10 @@ import dqn
 from env_manager import KalahEnvManager
 from agent import Move
 
+from kalah import Side
+
+import time
+
 from IPython.display import clear_output
 
 # hyper parameters
@@ -22,7 +26,9 @@ eps_decay = 0.0001
 target_update = 800
 memory_size = 10000
 lr = 1e-5  # learning rate
-score_rewards = False  # use scores difference as rewards
+score_rewards = True  # use scores difference as rewards
+opponent = "java -jar JimmyPlayer.jar"
+dqn_side = Side.NORTH
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # print(device)
@@ -39,14 +45,16 @@ target_net.eval()  # this network is not for training
 
 optimizer = optim.Adam(params=policy_net.parameters(), lr=lr)
 
-em = KalahEnvManager('java -jar ../MKRefAgent.jar', device)
+em = KalahEnvManager(opponent, device, dqn_side)
 wins = 0
 num_played = 0
 avg_score = 0
 illegal_moves = 0
 loss = None
 max_win_rate = 0
+max_score = 0
 
+start_time = time.time()
 for episode in range(1, num_episodes + 1):
     steps = 0
     mem_state = []
@@ -117,9 +125,12 @@ for episode in range(1, num_episodes + 1):
             dqn_win, final_score = em.winner()
             if dqn_win == True and illegal == False:
                 wins += 1
-                reward = 1000 / steps
+                if final_score > max_score:
+                    max_score = final_score
+                    torch.save(policy_net.state_dict(), "dqn_model_max_score")
+                reward = final_score / steps * 20
             else:
-                reward = -1000 / steps
+                reward = final_score / steps * 20
             if score_rewards == False:
                 for i in range(len(mem_state)):
                     memory.exp_save(
@@ -139,14 +150,14 @@ for episode in range(1, num_episodes + 1):
     if episode % target_update == 0:
         target_net.load_state_dict(policy_net.state_dict())
 
-    if episode % 100 == 0:
+    if episode % 20 == 0:
         # print current winning rate
         avg_score /= num_played
         winning_rate = wins / num_played
         clear_output(wait=True)
-        print("episode: " + str(episode - 99) + '-' + str(episode))
+        print("episode: " + str(episode - 19) + '-' + str(episode))
         print("DQN avg scores: " + str(avg_score))
-        print("winning rate(past 100 games): " + str(winning_rate))
+        print("winning rate(past 20 games): " + str(winning_rate))
         # print("illegal moves: " + str(illegal_moves))
         print("loss: " + str(loss))
         wins = 0
@@ -155,5 +166,7 @@ for episode in range(1, num_episodes + 1):
         if winning_rate > max_win_rate:
             max_win_rate = winning_rate
             torch.save(policy_net.state_dict(), "dqn_model")
+        end_time = time.time()
+        print("training time for 100 episodes: " + str(end_time-start_time))
 
 print("max winning rate during training: " + str(max_win_rate))

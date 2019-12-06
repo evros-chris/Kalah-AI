@@ -27,6 +27,10 @@ class KalahEnvManager():
         self.side = self._env.agent_side
         self.done = False
 
+    def get_side(self):
+        self.side = self._env.agent_side
+        return self.side
+
     def get_state(self):
         """
         Get the current state of the environment as a PyTorch Tensor.

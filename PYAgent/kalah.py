@@ -42,9 +42,9 @@ class Board(Observable):
 
             self.holes = holes
 
-            north_board = []
-            south_board = []
-            for i in range(holes + 1):
+            north_board = [0]
+            south_board = [0]
+            for i in range(1, holes + 1):
                 north_board.append(seeds)
                 south_board.append(seeds)
 
@@ -52,9 +52,9 @@ class Board(Observable):
             self.board.append(south_board)
         else:
             self.holes = original.holes
-            north_board = []
-            south_board = []
-            for i in range(holes + 1):
+            north_board = [0]
+            south_board = [0]
+            for i in range(1, holes + 1):
                 north_board[i] = original.board[self.NORTH_ROW][i]
                 south_board[i] = original.board[self.SOUTH_ROW][i]
 
@@ -217,6 +217,7 @@ class Kalah:
         sowSide = move.getSide()
         sowHole = move.getHole()  # 0 means store
         while extra > 0:
+            extra -= 1
             # go to next pit:
             sowHole += 1
             if sowHole == 1:  # last pit was a store
@@ -231,7 +232,6 @@ class Kalah:
                     sowHole = 1
             # sow to hole:
             board.addSeeds(sowSide, sowHole, 1)
-            extra -= 1
 
         # capture:
         # last seed was sown on the moving player's side ...

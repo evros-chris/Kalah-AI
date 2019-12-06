@@ -1,6 +1,7 @@
 from sys import stdin
 
 from agent import Move
+from agent import getPossibleMoves
 from kalah import Board
 from kalah import Kalah
 from kalah import Side
@@ -34,7 +35,7 @@ if __name__ == "__main__":
     agent = dqn.Agent(strategy=strategy, num_actions=7, device='cpu')
 
     policy_net = dqn.DQN(2, 7)
-    policy_net.load_state_dict(torch.load("PYAgent/dqn_model", map_location=torch.device('cpu')))
+    policy_net.load_state_dict(torch.load("dqn_model", map_location=torch.device('cpu')))
     policy_net.eval()
 
     with open("log.txt", "w") as w:
@@ -69,20 +70,30 @@ if __name__ == "__main__":
                     w.write("msg sent: " + choice + "\n")
                 else:
                     side = Side.NORTH
+            elif msg_type == MsgType.SWAP:
+                side = side.opposite()
+                w.write("our side: " + str(side) + '\n')
+                state = copy.deepcopy(kalah.getBoard().board)
+                state[0] = state[0][1:]
+                state[1] = state[1][1:]
+                state = torch.Tensor(state)
+                move_hole = agent.select_action_valid(state, policy_net, side, kalah)
+                choice = protocol.createMoveMsg(move_hole)
+                sendMsg(choice)
+                w.write("msg sent: " + choice + "\n")
             else:
                 move_turn = protocol.interpretStateMsg(message, kalah.board)
                 if not move_turn.end and move_turn.again:
                     # our turn, make a move
                     # get all legal moves
                     # possible_moves = [1,2,3,4,5,6,7]
-                    possible_moves = agent.getPossibleMoves(
-                        side, kalah
-                    )
+                    # possible_moves = agent.getPossibleMoves(
+                        # side, kalah
+                    # )
                     # choose randomly
                     # move_hole = RandomAgent().random_move(possible_moves)
                     # choice = protocol.createMoveMsg(move_hole)
                     # dqn makes a move
-                    # w.write("possible_moves: " + str(possible_moves) + "\n")
                     state = copy.deepcopy(kalah.getBoard().board)
                     state[0] = state[0][1:]
                     state[1] = state[1][1:]

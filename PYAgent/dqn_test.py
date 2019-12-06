@@ -4,20 +4,18 @@ import torch
 import dqn
 from env_manager import KalahEnvManager
 from agent import Move
+from kalah import Side
 
-num_episodes = 1000
+num_episodes = 1
 wins = 0
 num_played = 0
-eps_start = 0
-eps_end = 0
-eps_decay = 0.001
 
-env = KalahEnvManager("cpu")
-strategy = dqn.EpsilonGreedyStrategy(eps_start, eps_end, eps_decay)
+env = KalahEnvManager('java -jar Agents/JimmyPlayer.jar', 'cpu', Side.SOUTH)
+strategy = dqn.EpsilonGreedyStrategy(0, 0, 0)
 agent = dqn.Agent(strategy=strategy, num_actions=7, device='cpu')
 
 policy_net = dqn.DQN(2, 7)
-policy_net.load_state_dict(torch.load("dqn_model"))
+policy_net.load_state_dict(torch.load("dqn_model", map_location=torch.device('cpu')))
 policy_net.eval()
 
 
@@ -25,16 +23,22 @@ for episode in range(num_episodes):
     env.reset()
     num_played += 1
     illegal_moves = 0
-    side, state, reward = env.get_initial_state()
+    side = env.side
+    state = env.get_state()
     while 1:
         # DQN select a move according to policy_net
+        side = env.get_side()
         move = agent.select_action_valid(state, policy_net, side, env.kalah)
-        move = Move(env.dqn_side, move)
+        move = Move(side, move)
         if env.kalah.isLegalMove(move) == False:
             illegal_moves += 1
             break
+
         # DQN makes a move
-        is_game_over, next_state, reward = env.make_move(move)
+        reward = env.take_action(move)
+        is_game_over = env.done
+        next_state = env.get_state()
+
         # update current state
         state = next_state
 
@@ -52,6 +56,5 @@ for episode in range(num_episodes):
         print("episode: " + str(episode))
         print("DQN scores: " + str(final_score))
         print("winning rate: " + str(winning_rate))
-        print("illegal moves: " + str(illegal_moves))
 
 print("Overall winning rate: " + str(winning_rate))
