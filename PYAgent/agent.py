@@ -1,4 +1,7 @@
 from random import choice
+import copy
+from kalah import Move, Side
+import sys
 
 
 def getPossibleMoves(side, kalah):
@@ -10,36 +13,79 @@ def getPossibleMoves(side, kalah):
     return choice_list
 
 
-class Move:
-    # The side of the board the player making the move is playing on.
-    side = None
-    # The hole from which seeds are picked at the beginning of the move and
-    # distributed. It has to be >= 1.
-    hole = None
-
-    #  @param side The side of the board the player making the move is playing
-    #        on.
-    #  @param hole The hole from which seeds are picked at the beginning of
-    #          the move and distributed. It has to be >= 1.
-    #  @throws IllegalArgumentException if the hole number is not >= 1.
-    def __init__(self, side, hole):
-        if hole < 1:
-            raise ValueError(
-                "Hole numbers must be >= 1, but " + str(hole) + " was given."
-            )
-        self.side = side
-        self.hole = hole
-
-    # @return The side of the board the player making the move is playing on.
-    def getSide(self):
-        return self.side
-
-    #  @return The hole from which seeds are picked at the beginning of the
-    #          move and distributed. It will be >= 1.
-    def getHole(self):
-        return self.hole
-
-
 class RandomAgent():
     def random_move(self, possible_moves):
         return choice(possible_moves)
+
+
+class MiniMaxAgent():
+    @staticmethod
+    def minimax(kalah, mySide, activeSide, depth, alpha, beta):
+        if depth == 0 or kalah.gameOver():
+            nodeValue = kalah.board.getSeedsInStore(mySide) - \
+                kalah.board.getSeedsInStore(mySide.opposite())
+            return nodeValue, 0
+        
+        # if both stores are empty, then this is the first move
+        isFirstMove = True if (kalah.board.getSeedsInStore(Side.SOUTH) + kalah.board.getSeedsInStore(Side.NORTH)) == 0 else False
+        # if south south store has 1, and north store has 0, then it is move 2 and player can swap
+        isSecondMove = True if kalah.board.getSeedsInStore(Side.SOUTH) == 1 and kalah.board.getSeedsInStore(Side.NORTH) == 0 else False
+        
+        if mySide == activeSide:
+            # max node
+            bestValue = -sys.maxsize
+            bestHole = 0
+            for i in range(1, 8):
+                newMove = Move(activeSide, i)
+                newKalah = copy.deepcopy(kalah)
+                newBoard = newKalah.board
+                if kalah.isLegalMove(newMove, newBoard):
+                    new_activeSide = kalah.makeMove(newMove, newBoard)
+                    # if first move, then the player does not have an extra move
+                    if isFirstMove:
+                        new_activeSide = mySide.opposite()
+                    value, hole = MiniMaxAgent.minimax(newKalah, mySide, new_activeSide, depth - 1, alpha, beta)
+                    if value > bestValue:
+                        bestValue = value
+                        bestHole = i
+                    if bestValue > alpha:
+                        alpha = bestValue
+                    if alpha >= beta:
+                        break
+            if isSecondMove and alpha < beta:
+                newKalah = copy.deepcopy(kalah)
+                newBoard = newKalah.board
+                value, hole = MiniMaxAgent.minimax(newKalah, mySide.opposite(), activeSide, depth-1, alpha, beta)
+                if value > bestValue:
+                    bestValue = value
+                    # bestHole = -1
+                if bestValue > alpha:
+                    alpha = bestValue
+        else:
+            # min node
+            bestValue = sys.maxsize
+            bestHole = 0
+            for i in range(1, 8):
+                newMove = Move(activeSide, i);
+                newKalah = copy.deepcopy(kalah)
+                newBoard = newKalah.board
+                if kalah.isLegalMove(newMove, newBoard):
+                    new_activeSide = kalah.makeMove(newMove, newBoard)
+                    value, hole = MiniMaxAgent.minimax(newKalah, mySide, new_activeSide, depth-1, alpha, beta)
+                    if value < bestValue:
+                        bestValue = value
+                        bestHole = i
+                    if bestValue < beta:
+                        beta = bestValue
+                    if beta <= alpha:
+                        break
+            if isSecondMove and beta > alpha:
+                newKalah = copy.deepcopy(kalah)
+                newBoard = newKalah.board
+                value, hole = MiniMaxAgent.minimax(newKalah, mySide.opposite(), activeSide, depth-1, alpha, beta)
+                if value < bestValue:
+                    bestValue = value
+                    # bestHole = -1
+                if bestValue < beta:
+                    beta = bestValue
+        return value, bestHole

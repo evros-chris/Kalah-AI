@@ -1,6 +1,6 @@
 from sys import stdin
 
-from agent import Move
+from kalah import Move
 from agent import getPossibleMoves
 from kalah import Board
 from kalah import Kalah
@@ -31,7 +31,7 @@ def recvMsg():
 
 
 if __name__ == "__main__":
-    strategy = dqn.EpsilonGreedyStrategy(0, 0, 0)
+    strategy = dqn.EpsilonGreedyStrategy(1, 1, 0)
     agent = dqn.Agent(strategy=strategy, num_actions=7, device='cpu')
 
     policy_net = dqn.DQN(2, 7)

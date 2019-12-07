@@ -8,8 +8,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.transforms as T
 
-from agent import RandomAgent
-import agent
+from agent import RandomAgent, MiniMaxAgent, getPossibleMoves
+import sys
 
 
 # structure of dqn policy_net and target_net
@@ -87,7 +87,7 @@ class Agent():
         rate = self.strategy.get_exploration_rate(self.current_step)
         self.current_step += 1
 
-        possible_moves = agent.getPossibleMoves(side, kalah)
+        possible_moves = getPossibleMoves(side, kalah)
         if rate > random.random():
             # explore
             # choose randomly
@@ -105,12 +105,13 @@ class Agent():
         rate = self.strategy.get_exploration_rate(self.current_step)
         self.current_step += 1
 
-        possible_moves = agent.getPossibleMoves(side, kalah)
+        possible_moves = getPossibleMoves(side, kalah)
         if rate > random.random():
             # explore
             # choose randomly
-            action = RandomAgent().random_move(possible_moves)
-            # action = random.randrange(1, self.num_actions)
+            # action = RandomAgent().random_move(possible_moves)
+            # choose with alpha beta pruning
+            value, action = MiniMaxAgent().minimax(kalah, side, side, 8, -sys.maxsize, sys.maxsize)
             return action
         else:
             # exploit

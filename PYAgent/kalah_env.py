@@ -2,7 +2,7 @@ import copy
 import shlex
 import subprocess
 
-from agent import Move
+from kalah import Move
 from kalah import Board
 from kalah import Kalah
 from kalah import Side

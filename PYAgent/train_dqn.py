@@ -5,7 +5,7 @@ import torch.optim as optim
 
 import dqn
 from env_manager import KalahEnvManager
-from agent import Move
+from kalah import Move
 
 from kalah import Side
 

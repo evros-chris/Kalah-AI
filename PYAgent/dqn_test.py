@@ -3,15 +3,14 @@ import torch
 
 import dqn
 from env_manager import KalahEnvManager
-from agent import Move
-from kalah import Side
+from kalah import Side, Move
 
 num_episodes = 1
 wins = 0
 num_played = 0
 
 env = KalahEnvManager('java -jar Agents/JimmyPlayer.jar', 'cpu', Side.SOUTH)
-strategy = dqn.EpsilonGreedyStrategy(0, 0, 0)
+strategy = dqn.EpsilonGreedyStrategy(1, 1, 0)
 agent = dqn.Agent(strategy=strategy, num_actions=7, device='cpu')
 
 policy_net = dqn.DQN(2, 7)
