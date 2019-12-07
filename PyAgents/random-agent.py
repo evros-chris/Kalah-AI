@@ -1,12 +1,10 @@
 from sys import stdin
 
-from agent import RandomAgent
-from kalah import Board
-from kalah import Kalah
-from kalah import Side
-from protocol import MsgType
-import agent
-import protocol
+from PyEnv.agent import RandomAgent
+from PyEnv.kalah import Board, Kalah, Side
+from PyEnv.protocol import MsgType
+import PyEnv.agent as agent
+import PyEnv.protocol as protocol
 
 # Sends a message to the game engine.
 # @param msg The message.

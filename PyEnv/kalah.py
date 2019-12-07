@@ -1,6 +1,6 @@
 import enum
 
-from observable import Observable
+from PyEnv.observable import Observable
 
 
 class Move:

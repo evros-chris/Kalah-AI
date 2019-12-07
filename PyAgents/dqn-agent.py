@@ -1,17 +1,14 @@
 from sys import stdin
 
-from kalah import Move
-from agent import getPossibleMoves
-from kalah import Board
-from kalah import Kalah
-from kalah import Side
-from protocol import MoveTurn
-from protocol import MsgType
-import agent
-import protocol
+from PyEnv.kalah import Move, Board, Kalah, Side
+from PyEnv.agent import getPossibleMoves
+from PyEnv.protocol import MoveTurn
+from PyEnv.protocol import MsgType
+import PyEnv.agent as agent
+import PyEnv.protocol as protocol
 
 import torch
-import dqn
+import PyDQN.dqn as dqn
 import copy
 
 
@@ -35,7 +32,7 @@ if __name__ == "__main__":
     agent = dqn.Agent(strategy=strategy, num_actions=7, device='cpu')
 
     policy_net = dqn.DQN(2, 7)
-    policy_net.load_state_dict(torch.load("dqn_model_max_score", map_location=torch.device('cpu')))
+    policy_net.load_state_dict(torch.load("dqn_model", map_location=torch.device('cpu')))
     policy_net.eval()
 
     with open("log.txt", "w") as w:

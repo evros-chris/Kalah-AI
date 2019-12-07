@@ -1,6 +1,6 @@
 import enum
 
-from kalah import Side
+from PyEnv.kalah import Side
 
 
 class MsgType(enum.Enum):

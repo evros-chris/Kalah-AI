@@ -3,11 +3,11 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
-import dqn
-from env_manager import KalahEnvManager
-from kalah import Move
+import PyDQN.dqn as dqn
+from PyEnv.env_manager import KalahEnvManager
+from PyEnv.kalah import Move
 
-from kalah import Side
+from PyEnv.kalah import Side
 
 import time
 

@@ -1,7 +1,7 @@
 import torch
 
-from kalah import Side
-from kalah_env import KalahEnv
+from PyEnv.kalah import Side
+from PyEnv.kalah_env import KalahEnv
 
 
 class KalahEnvManager():

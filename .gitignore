@@ -1,4 +1,5 @@
 /.vscode/*
 /.idea/*
-/PYAgent/__pycache__/*
+/PyEnv/__pycache__/*
+/PyDQN/__pycache__/*
 **/log.txt

@@ -1,9 +1,9 @@
 # testing script for dqn agent
 import torch
 
-import dqn
-from env_manager import KalahEnvManager
-from kalah import Side, Move
+import PyDQN.dqn as dqn
+from PyEnv.env_manager import KalahEnvManager
+from PyEnv.kalah import Side, Move
 
 num_episodes = 1
 wins = 0

@@ -2,11 +2,8 @@ import copy
 import shlex
 import subprocess
 
-from kalah import Move
-from kalah import Board
-from kalah import Kalah
-from kalah import Side
-import protocol
+from PyEnv.kalah import Move, Board, Kalah, Side
+import PyEnv.protocol as protocol
 
 
 class KalahEnv():

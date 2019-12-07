@@ -1,6 +1,6 @@
 from random import choice
 import copy
-from kalah import Move, Side
+from PyEnv.kalah import Move, Side
 import sys
 
 

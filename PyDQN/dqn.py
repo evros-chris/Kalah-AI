@@ -8,7 +8,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.transforms as T
 
-from agent import RandomAgent, MiniMaxAgent, getPossibleMoves
+from PyEnv.agent import RandomAgent, MiniMaxAgent, getPossibleMoves
 import sys
 
 
