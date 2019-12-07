@@ -44,7 +44,7 @@ class MiniMaxAgent():
                     # if first move, then the player does not have an extra move
                     if isFirstMove:
                         new_activeSide = mySide.opposite()
-                    value, hole = MiniMaxAgent.minimax(newKalah, mySide, new_activeSide, depth - 1, alpha, beta)
+                    value, hole = MiniMaxAgent.minimax(newKalah, mySide, new_activeSide, depth-1, alpha, beta)
                     if value > bestValue:
                         bestValue = value
                         bestHole = i
@@ -58,7 +58,7 @@ class MiniMaxAgent():
                 value, hole = MiniMaxAgent.minimax(newKalah, mySide.opposite(), activeSide, depth-1, alpha, beta)
                 if value > bestValue:
                     bestValue = value
-                    # bestHole = -1
+                    bestHole = -1
                 if bestValue > alpha:
                     alpha = bestValue
         else:
@@ -85,7 +85,7 @@ class MiniMaxAgent():
                 value, hole = MiniMaxAgent.minimax(newKalah, mySide.opposite(), activeSide, depth-1, alpha, beta)
                 if value < bestValue:
                     bestValue = value
-                    # bestHole = -1
+                    bestHole = -1
                 if bestValue < beta:
                     beta = bestValue
-        return value, bestHole
+        return bestValue, bestHole

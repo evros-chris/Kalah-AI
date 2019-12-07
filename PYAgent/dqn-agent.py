@@ -35,7 +35,7 @@ if __name__ == "__main__":
     agent = dqn.Agent(strategy=strategy, num_actions=7, device='cpu')
 
     policy_net = dqn.DQN(2, 7)
-    policy_net.load_state_dict(torch.load("dqn_model", map_location=torch.device('cpu')))
+    policy_net.load_state_dict(torch.load("dqn_model_max_score", map_location=torch.device('cpu')))
     policy_net.eval()
 
     with open("log.txt", "w") as w:

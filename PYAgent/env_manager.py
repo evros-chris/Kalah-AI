@@ -28,6 +28,7 @@ class KalahEnvManager():
         self.done = False
 
     def get_side(self):
+        self.kalah = self._env.kalah
         self.side = self._env.agent_side
         return self.side
 
