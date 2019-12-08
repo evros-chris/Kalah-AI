@@ -87,6 +87,21 @@ class KalahEnv():
             state[1] = state_0
 
         return state
+    
+    def get_state_val(self):
+        if self.kalah is None:
+            return None
+
+        state = copy.deepcopy(self.kalah.board.board)
+        if self.agent_side == Side.SOUTH:
+            state[0] = state[0]
+            state[1] = state[1]
+        else:
+            state_0 = copy.deepcopy(state[0])
+            state[0] = state[1]
+            state[1] = state_0
+
+        return state
 
     def get_score(self):
         return self.kalah.board.getSeedsInStore(
@@ -108,7 +123,7 @@ class KalahEnv():
             # Swap active side.
             # self._active_side = self._active_side.opposite()
 
-            print('Move: Swap')
+            # print('Move: Swap')
 
             if self._active_side == self._op_side:
                 self._op_process.stdin.write(

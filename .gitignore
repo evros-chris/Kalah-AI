@@ -2,4 +2,6 @@
 /.idea/*
 /PyEnv/__pycache__/*
 /PyDQN/__pycache__/*
+/PyAlpha/__pycache__/*
+/PyAgents/__pycache__/*
 **/log.txt
