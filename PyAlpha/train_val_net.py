@@ -24,10 +24,10 @@ lr = 1e-5  # learning rate
 eps_start = 0.9
 eps_end = 0.1
 eps_decay = 0.001
-memory_size = 5000
+memory_size = 2000
 batch_size = 256
 
-minimax_depth = 5
+minimax_depth = 4
 opponent = "java -jar Agents/JimmyPlayer.jar"
 dqn_side = Side.SOUTH
 continue_train = True
@@ -92,7 +92,7 @@ for episode in range(1, num_episodes + 1):
                 value_net, states
             )
             # gradient descent: update weights
-            loss = F.mse_loss(current_q_values, scores.to(device).unsqueeze(1))
+            loss = F.binary_cross_entropy(current_q_values, scores.to(device).unsqueeze(1))
             optimizer.zero_grad()  # clear previous gradients
             loss.backward()  # back prop, calculate gradients
             optimizer.step()  # update weights
@@ -102,16 +102,18 @@ for episode in range(1, num_episodes + 1):
             dqn_win, final_score = em.winner()
             if dqn_win:
                 wins += 1
+                result = 1
                 print("eps for win: " + str(eps))
                 torch.save(value_net.state_dict(), "model/latest_win")
                 if final_score > max_score:
                     max_score = final_score
                     torch.save(value_net.state_dict(), "model/max_score")
-
+            else:
+                result = 0
             for i in range(len(mem_state)):
                 memory.exp_save(
                         Experience(
-                            mem_state[i], torch.Tensor([final_score])
+                            mem_state[i], torch.Tensor([result])
                         )
                     )
             break

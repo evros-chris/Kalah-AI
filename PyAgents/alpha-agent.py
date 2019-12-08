@@ -33,7 +33,7 @@ if __name__ == "__main__":
     value_net.load_state_dict(torch.load("model/max_score", map_location=torch.device('cpu')))
     value_net.eval()
 
-    minimax_depth = 5
+    minimax_depth = 6
     eps = 0.35
 
     with open("log.txt", "w") as w:

@@ -79,7 +79,7 @@ class MLP(nn.Module):
         t = F.relu(self.linear3_dropout(self.fc3(t)))
         t = F.relu(self.linear4_dropout(self.fc4(t)))
         t = F.relu(self.linear5_dropout(self.fc5(t)))
-        t = self.out(t)
+        t = torch.sigmoid(self.out(t))
         return t
 
 class QValues():
@@ -113,10 +113,11 @@ class MiniMaxAgent():
                 kalah.board.getSeedsInStore(mySide.opposite())
             return nodeValue, 0
         elif depth == 0:    
-            original_h = kalah.board.getSeedsInStore(mySide) - \
-                kalah.board.getSeedsInStore(mySide.opposite())
-            nn_h = MiniMaxAgent.get_score(kalah, val_net, mySide)
-            nodeValue = original_h * eps + nn_h * (1-eps)
+            # original_h = kalah.board.getSeedsInStore(mySide) - \
+            #     kalah.board.getSeedsInStore(mySide.opposite())
+            # nn_h = MiniMaxAgent.get_score(kalah, val_net, mySide)
+            # nodeValue = original_h * eps + nn_h * (1-eps)
+            nodeValue = MiniMaxAgent.get_score(kalah, val_net, mySide)
             return nodeValue, 0
         
         # if both stores are empty, then this is the first move
