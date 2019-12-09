@@ -93,15 +93,21 @@ class KalahEnv():
             return None
 
         state = copy.deepcopy(self.kalah.board.board)
+        state_op = copy.deepcopy(self.kalah.board.board)
         if self.agent_side == Side.SOUTH:
             state[0] = state[0]
             state[1] = state[1]
+            state_op_0 = copy.deepcopy(state_op[0])
+            state_op[0] = state_op[1]
+            state_op[1] = state_op_0
         else:
             state_0 = copy.deepcopy(state[0])
             state[0] = state[1]
             state[1] = state_0
+            state_op[0] = state_op[0]
+            state_op[1] = state_op[1]
 
-        return state
+        return state, state_op
 
     def get_score(self):
         return self.kalah.board.getSeedsInStore(

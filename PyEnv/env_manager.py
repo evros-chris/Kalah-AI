@@ -39,7 +39,8 @@ class KalahEnvManager():
         return torch.Tensor(self._state)
     
     def get_state_val(self):
-        return torch.Tensor(self._env.get_state_val())
+        state, state_op = self._env.get_state_val()
+        return torch.Tensor(state), torch.Tensor(state_op)
 
     def take_action(self, move):
         """

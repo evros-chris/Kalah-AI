@@ -34,8 +34,8 @@ if __name__ == "__main__":
     value_net.eval()
 
     minimax_depth = 6
-    eps = 0.35
 
+    steps = 0
     with open("log.txt", "w") as w:
         board = Board(7, 7)
         kalah = Kalah(board)
@@ -54,21 +54,9 @@ if __name__ == "__main__":
                     # South, start the game
                     side = Side.SOUTH
                     w.write("our side: " + str(side) + '\n')
-                    # choose randomly
-                    # possible_moves = [1, 2, 3, 4, 5, 6, 7]
-                    # move_hole = RandomAgent().random_move(possible_moves)
                     # dqn makes a move
-                    state = copy.deepcopy(kalah.getBoard().board)
-                    if side == Side.SOUTH:
-                        state[0] = state[0]
-                        state[1] = state[1]
-                    else:
-                        state_0 = copy.deepcopy(state[0])
-                        state[0] = state[1]
-                        state[1] = state_0
-                    state = torch.Tensor(state)
                     value, move_hole = alpha.MiniMaxAgent.minimax_dl(
-                        kalah, side, side, minimax_depth, -sys.maxsize, sys.maxsize, value_net, eps
+                        kalah, side, side, minimax_depth, -sys.maxsize, sys.maxsize, value_net
                     )
                     choice = protocol.createMoveMsg(move_hole)
                     sendMsg(choice)
@@ -76,19 +64,11 @@ if __name__ == "__main__":
                 else:
                     side = Side.NORTH
             elif msg_type == MsgType.SWAP:
+                steps+=1
                 side = side.opposite()
                 w.write("our side: " + str(side) + '\n')
-                state = copy.deepcopy(kalah.getBoard().board)
-                if side == Side.SOUTH:
-                    state[0] = state[0]
-                    state[1] = state[1]
-                else:
-                    state_0 = copy.deepcopy(state[0])
-                    state[0] = state[1]
-                    state[1] = state_0
-                state = torch.Tensor(state)
                 value, move_hole = alpha.MiniMaxAgent.minimax_dl(
-                        kalah, side, side, minimax_depth, -sys.maxsize, sys.maxsize, value_net, eps
+                        kalah, side, side, minimax_depth, -sys.maxsize, sys.maxsize, value_net
                     )
                 choice = protocol.createMoveMsg(move_hole)
                 sendMsg(choice)
@@ -96,32 +76,23 @@ if __name__ == "__main__":
             else:
                 move_turn = protocol.interpretStateMsg(message, kalah.board)
                 if not move_turn.end and move_turn.again:
+                    steps+=1
                     # our turn, make a move
-                    # get all legal moves
-                    # possible_moves = [1,2,3,4,5,6,7]
-                    # possible_moves = agent.getPossibleMoves(
-                        # side, kalah
-                    # )
-                    # choose randomly
-                    # move_hole = RandomAgent().random_move(possible_moves)
-                    # choice = protocol.createMoveMsg(move_hole)
                     # dqn makes a move
-                    state = copy.deepcopy(kalah.getBoard().board)
-                    if side == Side.SOUTH:
-                        state[0] = state[0]
-                        state[1] = state[1]
-                    else:
-                        state_0 = copy.deepcopy(state[0])
-                        state[0] = state[1]
-                        state[1] = state_0
-                    state = torch.Tensor(state)
+                    if steps == 1 and side == Side.NORTH:
+                        # can swap
+                        if alpha.MiniMaxAgent.get_score(kalah, value_net, side.opposite()) > 0.5:
+                            side = Side.SOUTH
+                            sendMsg("SWAP")
+                            w.write("msg sent: " + "SWAP" + "\n")
+                            continue
                     value, move_hole = alpha.MiniMaxAgent.minimax_dl(
-                        kalah, side, side, minimax_depth, -sys.maxsize, sys.maxsize, value_net, eps
+                        kalah, side, side, minimax_depth, -sys.maxsize, sys.maxsize, value_net
                     )
-                    if kalah.board.getSeedsInStore(side) + \
-                kalah.board.getSeedsInStore(side.opposite()) > 65:
-                        eps = 1
-                        minimax_depth = 7
+                #     if kalah.board.getSeedsInStore(side) + \
+                # kalah.board.getSeedsInStore(side.opposite()) > 65:
+                #         eps = 1
+                #         minimax_depth = 8
                     choice = protocol.createMoveMsg(move_hole)
                     sendMsg(choice)
                     w.write("msg sent: " + choice + "\n")

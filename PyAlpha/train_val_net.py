@@ -5,7 +5,7 @@ import torch.optim as optim
 
 from PyAlpha.neural_nets import MLP, QValues
 from PyAlpha.neural_nets import ReplayMemory, extract_tensors, Experience
-from PyAlpha.neural_nets import MiniMaxAgent, EpsilonGreedyStrategy
+from PyAlpha.neural_nets import MiniMaxAgent
 from PyEnv.env_manager import KalahEnvManager
 from PyEnv.kalah import Move
 
@@ -17,14 +17,12 @@ import sys
 from IPython.display import clear_output
 
 # hyper parameters
-num_episodes = 300
+num_episodes = 400
 max_steps = 200
 
 lr = 1e-5  # learning rate
-eps_start = 0.9
-eps_end = 0.1
-eps_decay = 0.001
-memory_size = 2000
+
+memory_size = 4000
 batch_size = 256
 
 minimax_depth = 4
@@ -39,7 +37,6 @@ value_net = MLP(rows=2, cols=8).to(device)
 if continue_train:
     value_net.load_state_dict(torch.load("model/max_score"))
 
-strategy = EpsilonGreedyStrategy(eps_start, eps_end, eps_decay)
 memory = ReplayMemory(memory_size)
 
 optimizer = optim.Adam(params=value_net.parameters(), lr=lr)
@@ -51,14 +48,13 @@ avg_score = 0
 loss = None
 min_loss = sys.maxsize
 max_win_rate = 0
-max_score = 0
+max_score = -sys.maxsize
 
 steps = 0
 start_time = time.time()
 for episode in range(1, num_episodes + 1):
     mem_state = []
-    mem_action = []
-    mem_next = []
+    mem_state_op = []
     num_played += 1
     em.reset()
     done = False
@@ -69,18 +65,18 @@ for episode in range(1, num_episodes + 1):
         steps += 1
         side = em.get_side()
         # minimax select action
-        eps = strategy.get_exploration_rate(steps)
-        value, move = MiniMaxAgent.minimax_dl(em.kalah, side, side, minimax_depth, -sys.maxsize, sys.maxsize, value_net, eps)
+        value, move = MiniMaxAgent.minimax_dl(em.kalah, side, side, minimax_depth, -sys.maxsize, sys.maxsize, value_net)
         move = Move(em.side, move)
 
         # agent makes a move
         reward = em.take_action(move)
         done = em.done
-        state = em.get_state_val()
+        state, state_op = em.get_state_val()
         side = em.get_side()
 
         # save in memory
         mem_state.append(torch.unsqueeze(state, 0))
+        mem_state_op.append(torch.unsqueeze(state_op, 0))
 
         # Memory replay
         if memory.exp_count >= batch_size:
@@ -103,19 +99,26 @@ for episode in range(1, num_episodes + 1):
             if dqn_win:
                 wins += 1
                 result = 1
-                print("eps for win: " + str(eps))
+                result_op = 0
+                print("agent win: " + str(final_score))
                 torch.save(value_net.state_dict(), "model/latest_win")
-                if final_score > max_score:
-                    max_score = final_score
-                    torch.save(value_net.state_dict(), "model/max_score")
             else:
                 result = 0
+                result_op = 1
             for i in range(len(mem_state)):
                 memory.exp_save(
                         Experience(
                             mem_state[i], torch.Tensor([result])
                         )
                     )
+                memory.exp_save(
+                        Experience(
+                            mem_state_op[i], torch.Tensor([result_op])
+                        )
+                    )
+            if final_score > max_score:
+                    max_score = final_score
+                    torch.save(value_net.state_dict(), "model/max_score")
             break
 
     dqn_win, final_score = em.winner()
@@ -131,7 +134,6 @@ for episode in range(1, num_episodes + 1):
         print("current best score: " + str(max_score))
         print("winning rate(past 10 games): " + str(winning_rate))
         print("loss: " + str(loss))
-        print("current eps: " + str(eps))
         wins = 0
         num_played = 0
         if winning_rate > max_win_rate:

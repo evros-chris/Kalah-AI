@@ -5,3 +5,4 @@
 /PyAlpha/__pycache__/*
 /PyAgents/__pycache__/*
 **/log.txt
+**/out
