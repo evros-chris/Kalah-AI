@@ -1,23 +1,19 @@
 package MKAgent;
 
-public class valueHolePair
-{
-	private int value;
+public class valueHolePair {
+	private double value;
 	private int hole;
 
-	public valueHolePair(int myValue, int myHole)
-	{
+	public valueHolePair(double myValue, int myHole) {
 		this.value = myValue;
 		this.hole = myHole;
 	}
 
-	public int getValue()
-	{
+	public double getValue() {
 		return value;
 	}
 
-	public int getHole()
-	{
+	public int getHole() {
 		return hole;
 	}
 }

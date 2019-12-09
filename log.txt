@@ -1,0 +1,7 @@
+received: START;South
+msg type: MsgType.START
+our side: Side.SOUTH
+msg sent: MOVE;1
+received: END
+msg type: MsgType.END
+Game Over
