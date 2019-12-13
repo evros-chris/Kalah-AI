@@ -179,15 +179,19 @@ public class myCommit {
 
     // evaluation function
     public static double evaluationFunction(Board board, Side mySide, Side playSide) throws Exception {
-        if (playSide == mySide)
-            return seedsInMyStore(board, mySide) * 1 - seedsInOpStore(board, mySide) * 0.57
-                    + seedsInMySide(board, mySide) * 0.19 - seedsInOpSide(board, mySide) * 0
-                    + noOfNonEmptyPits(board, mySide) * 0.37 + seedsInLeftMostPit(board, mySide) * 0.20 + 5;
-        else
-            return seedsInMyStore(board, mySide) * 1 - seedsInOpStore(board, mySide) * 0.57
-                    + seedsInMySide(board, mySide) * 0.19 - seedsInOpSide(board, mySide) * 0
-                    + noOfNonEmptyPits(board, mySide) * 0.37 + seedsInLeftMostPit(board, mySide) * 0.20;
-        // return seedsInMyStore(board, mySide) - seedsInOpStore(board, mySide);
+        // if (playSide == mySide)
+        // return seedsInMyStore(board, mySide) * 1 - seedsInOpStore(board, mySide) *
+        // 0.57
+        // + seedsInMySide(board, mySide) * 0.19 - seedsInOpSide(board, mySide) * 0
+        // + noOfNonEmptyPits(board, mySide) * 0.37 + seedsInLeftMostPit(board, mySide)
+        // * 0.20 + 5;
+        // else
+        // return seedsInMyStore(board, mySide) * 1 - seedsInOpStore(board, mySide) *
+        // 0.57
+        // + seedsInMySide(board, mySide) * 0.19 - seedsInOpSide(board, mySide) * 0
+        // + noOfNonEmptyPits(board, mySide) * 0.37 + seedsInLeftMostPit(board, mySide)
+        // * 0.20;
+        return seedsInMyStore(board, mySide) - seedsInOpStore(board, mySide);
     }
 
     // heuristic 1
@@ -261,10 +265,8 @@ public class myCommit {
             } else if (msgType == MsgType.START) {
                 if (Protocol.interpretStartMsg(message)) {
                     side = Side.SOUTH;
-                    moveHole = 7;
-                    // moveHole = minimax(kalah.getBoard(), side, side, 15, Integer.MIN_VALUE,
-                    // Integer.MAX_VALUE,
-                    // swapPlayed).getHole();
+                    moveHole = minimax(kalah.getBoard(), side, side, 15, Integer.MIN_VALUE, Integer.MAX_VALUE,
+                            swapPlayed).getHole();
                     if (moveHole == -1) {
                         moveMessage = Protocol.createSwapMsg();
                         side = side.opposite();
@@ -281,14 +283,8 @@ public class myCommit {
                     swapPlayed = true;
                 }
                 if (moveTurn.again && !moveTurn.end) {
-                    // if (moveCounter == 0) {
-                    // moveHole = -1;
-                    // moveCounter++;
-                    // } else
-                    moveHole = 7;
-                    // minimax(kalah.getBoard(), side, side, 15, Integer.MIN_VALUE,
-                    // Integer.MAX_VALUE,
-                    // swapPlayed).getHole();
+                    moveHole = minimax(kalah.getBoard(), side, side, 15, Integer.MIN_VALUE, Integer.MAX_VALUE,
+                            swapPlayed).getHole();
                     if (moveHole == -1) {
                         moveMessage = Protocol.createSwapMsg();
                         side = side.opposite();

@@ -529,10 +529,16 @@ public class Main {
 					} else if (!amSouth && moveCounter == 1 && playedMove == 7 && moveTurn.move == 7) {
 						moveHole = 1; // opponent cannot play this move
 					} else
-						moveHole = minimax(kalah.getBoard(), side, side, 15, Integer.MIN_VALUE, Integer.MAX_VALUE,
+						moveHole = minimax(kalah.getBoard(), side, side, 14, Integer.MIN_VALUE, Integer.MAX_VALUE,
 								swapPlayed).getHole();
-
 					moveCounter++;
+
+					move = new Move(side, moveHole);
+					if (moveHole != -1 && !Kalah.isLegalMove(kalah.getBoard(), move)) {
+						moveHole = minimax(kalah.getBoard(), side, side, 14, Integer.MIN_VALUE, Integer.MAX_VALUE,
+								swapPlayed).getHole();
+					}
+
 					if (moveHole == -1) {
 						moveMessage = Protocol.createSwapMsg();
 						side = side.opposite();
