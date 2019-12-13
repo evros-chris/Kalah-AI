@@ -421,9 +421,117 @@ public class Main {
 						moveHole = 2;
 					} else if (amSouth && moveCounter == 2 && playedMove == -1 && moveTurn.move == 7) {
 						moveHole = 1;
+					} else if (!amSouth && moveCounter == 0 && moveTurn.move == 1) {
+						moveHole = 1;
+						playedMove = moveTurn.move;
+					} else if (!amSouth && moveCounter == 0 && moveTurn.move == 2) {
+						moveHole = -1;
+						playedMove = moveTurn.move;
+					} else if (!amSouth && moveCounter == 0 && moveTurn.move == 3) {
+						moveHole = -1;
+						playedMove = moveTurn.move;
+					} else if (!amSouth && moveCounter == 0 && moveTurn.move == 4) {
+						moveHole = -1;
+						playedMove = moveTurn.move;
+					} else if (!amSouth && moveCounter == 0 && moveTurn.move == 5) {
+						moveHole = -1;
+						playedMove = moveTurn.move;
+					} else if (!amSouth && moveCounter == 0 && moveTurn.move == 6) {
+						moveHole = -1;
+						playedMove = moveTurn.move;
+					} else if (!amSouth && moveCounter == 0 && moveTurn.move == 7) {
+						moveHole = 3;
+						playedMove = moveTurn.move;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 1) {
+						moveHole = 3; // I play again so will be always 3
+					} else if (!amSouth && moveCounter == 1 && playedMove == 2 && moveTurn.move == 1) {
+						moveHole = 3;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 2 && moveTurn.move == 2) {
+						moveHole = 5;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 2 && moveTurn.move == 3) {
+						moveHole = 4;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 2 && moveTurn.move == 4) {
+						moveHole = 3;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 2 && moveTurn.move == 5) {
+						moveHole = 6;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 2 && moveTurn.move == 6) {
+						moveHole = 4;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 2 && moveTurn.move == 7) {
+						moveHole = 4;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 3 && moveTurn.move == 1) {
+						moveHole = 6;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 3 && moveTurn.move == 2) {
+						moveHole = 5;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 3 && moveTurn.move == 3) {
+						moveHole = 2;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 3 && moveTurn.move == 4) {
+						moveHole = 4;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 3 && moveTurn.move == 5) {
+						moveHole = 4;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 3 && moveTurn.move == 6) {
+						moveHole = 4;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 3 && moveTurn.move == 7) {
+						moveHole = 4;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 4 && moveTurn.move == 1) {
+						moveHole = 3;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 4 && moveTurn.move == 2) {
+						moveHole = 3;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 4 && moveTurn.move == 3) {
+						moveHole = 3;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 4 && moveTurn.move == 4) {
+						moveHole = 3;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 4 && moveTurn.move == 5) {
+						moveHole = 3;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 4 && moveTurn.move == 6) {
+						moveHole = 6;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 4 && moveTurn.move == 7) {
+						moveHole = 3;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 5 && moveTurn.move == 1) {
+						moveHole = 6;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 5 && moveTurn.move == 2) {
+						moveHole = 3;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 5 && moveTurn.move == 3) {
+						moveHole = 2;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 5 && moveTurn.move == 4) {
+						moveHole = 3;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 5 && moveTurn.move == 5) {
+						moveHole = 6;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 5 && moveTurn.move == 6) {
+						moveHole = 4;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 5 && moveTurn.move == 7) {
+						moveHole = 2;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 6 && moveTurn.move == 1) {
+						moveHole = 3;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 6 && moveTurn.move == 2) {
+						moveHole = 3;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 6 && moveTurn.move == 3) {
+						moveHole = 2;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 6 && moveTurn.move == 4) {
+						moveHole = 3;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 6 && moveTurn.move == 5) {
+						moveHole = 3;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 6 && moveTurn.move == 6) {
+						moveHole = 2;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 6 && moveTurn.move == 7) {
+						moveHole = 3;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 7 && moveTurn.move == 1) {
+						moveHole = 6;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 7 && moveTurn.move == 2) {
+						moveHole = 4;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 7 && moveTurn.move == 3) {
+						moveHole = 1;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 7 && moveTurn.move == 4) {
+						moveHole = 6;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 7 && moveTurn.move == 5) {
+						moveHole = 1;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 7 && moveTurn.move == 6) {
+						moveHole = 7;
+					} else if (!amSouth && moveCounter == 1 && playedMove == 7 && moveTurn.move == 7) {
+						moveHole = 1; // opponent cannot play this move
 					} else
 						moveHole = minimax(kalah.getBoard(), side, side, 15, Integer.MIN_VALUE, Integer.MAX_VALUE,
 								swapPlayed).getHole();
+
 					moveCounter++;
 					if (moveHole == -1) {
 						moveMessage = Protocol.createSwapMsg();

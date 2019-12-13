@@ -261,8 +261,10 @@ public class myCommit {
             } else if (msgType == MsgType.START) {
                 if (Protocol.interpretStartMsg(message)) {
                     side = Side.SOUTH;
-                    moveHole = minimax(kalah.getBoard(), side, side, 15, Integer.MIN_VALUE, Integer.MAX_VALUE,
-                            swapPlayed).getHole();
+                    moveHole = 7;
+                    // moveHole = minimax(kalah.getBoard(), side, side, 15, Integer.MIN_VALUE,
+                    // Integer.MAX_VALUE,
+                    // swapPlayed).getHole();
                     if (moveHole == -1) {
                         moveMessage = Protocol.createSwapMsg();
                         side = side.opposite();
@@ -279,11 +281,11 @@ public class myCommit {
                     swapPlayed = true;
                 }
                 if (moveTurn.again && !moveTurn.end) {
-                    if (moveCounter == 0) {
-                        moveHole = -1;
-                        moveCounter++;
-                    } else
-                        moveHole = 7;
+                    // if (moveCounter == 0) {
+                    // moveHole = -1;
+                    // moveCounter++;
+                    // } else
+                    moveHole = 7;
                     // minimax(kalah.getBoard(), side, side, 15, Integer.MIN_VALUE,
                     // Integer.MAX_VALUE,
                     // swapPlayed).getHole();
